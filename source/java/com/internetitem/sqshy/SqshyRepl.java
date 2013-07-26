@@ -6,31 +6,41 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import jline.console.ConsoleReader;
+
+import com.internetitem.sqshy.config.DriverMatch;
 
 public class SqshyRepl {
 
 	private ConsoleReader reader;
 	private Map<String, String> variables;
+	private List<DriverMatch> driverInfos;
 	private Connection conn = null;
 
-	public SqshyRepl(ConsoleReader reader, Map<String, String> variables) {
+	public SqshyRepl(ConsoleReader reader, Map<String, String> variables, List<DriverMatch> driverInfos) {
 		this.reader = reader;
 		this.variables = variables;
+		this.driverInfos = driverInfos;
 	}
 
 	public void connect(String driverClass, String url, String username, String password, Map<String, String> connectionProperties) throws Exception {
 		if (driverClass == null) {
-			throw new Exception("No JDBC Driver Class specified");
+			findDriver(url);
 		}
-		reader.println("Connecting to URL " + url + " with driver " + driverClass);
-		try {
-			Class.forName(driverClass);
-		} catch (Exception e) {
-			throw new Exception("Unable to load JDBC Driver Class [" + driverClass + "]: " + e.getMessage(), e);
+		if (driverClass != null) {
+			reader.println("Connecting to URL " + url + " with driver " + driverClass);
+			try {
+				Class.forName(driverClass);
+			} catch (Exception e) {
+				throw new Exception("Unable to load JDBC Driver Class [" + driverClass + "]: " + e.getMessage(), e);
+			}
+		} else {
+			reader.println("Connecting to URL " + url);
 		}
 
 		if (connectionProperties != null && !connectionProperties.isEmpty()) {
@@ -47,6 +57,20 @@ public class SqshyRepl {
 			conn = DriverManager.getConnection(url, username, password);
 		} else {
 			conn = DriverManager.getConnection(url);
+		}
+	}
+
+	private void findDriver(String url) throws IOException {
+		reader.println("Scanning for JDBC Drivers");
+		for (DriverMatch match : driverInfos) {
+			if (Pattern.compile(match.getMatch()).matcher(url).find()) {
+				try {
+					Class.forName(match.getDriver());
+					reader.println("Loaded driver " + match.getDriver());
+				} catch (Exception e) {
+					reader.println("Unable to load driver " + match.getDriver() + ": " + e.getMessage());
+				}
+			}
 		}
 	}
 

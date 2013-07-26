@@ -1,0 +1,11 @@
+{
+	"variables": {
+		"delimiter": ";",
+		"gocmd": "\\go",
+		"quotechars": "['\"]",
+		"resultcount": "true"
+	},
+	"drivers": [
+		{"match": "mysql", "driver": "com.mysql.jdbc.Driver"}
+	]
+}

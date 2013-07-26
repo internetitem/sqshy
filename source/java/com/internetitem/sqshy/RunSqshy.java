@@ -1,6 +1,7 @@
 package com.internetitem.sqshy;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import jline.console.ConsoleReader;
 
 import com.internetitem.sqshy.config.Configuration;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
+import com.internetitem.sqshy.config.DriverMatch;
 import com.internetitem.sqshy.config.args.BooleanValue;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
@@ -52,6 +54,8 @@ public class RunSqshy {
 			System.exit(0);
 			return;
 		}
+
+		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
 
 		String settingsFilename = cmdline.getValue("settings");
 		File settingsFile;
@@ -123,13 +127,18 @@ public class RunSqshy {
 			}
 		}
 
+		List<DriverMatch> driverInfos = new ArrayList<>(globalConfig.getDrivers());
 		if (config != null) {
 			putIfAbsent(variables, config.getVariables());
+			if (config.getDrivers() != null) {
+				driverInfos.addAll(config.getDrivers());
+			}
 		}
+		putIfAbsent(variables, globalConfig.getVariables());
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
-		SqshyRepl repl = new SqshyRepl(reader, variables);
+		SqshyRepl repl = new SqshyRepl(reader, variables, driverInfos);
 		if (url != null) {
 			repl.connect(driverClass, url, username, password, connectionProperties);
 		}
