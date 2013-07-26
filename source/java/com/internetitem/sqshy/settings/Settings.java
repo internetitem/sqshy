@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +15,6 @@ import com.internetitem.sqshy.Output;
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
 import com.internetitem.sqshy.config.DriverMatch;
-import com.internetitem.sqshy.settings.SettingsSet.SettingSource;
 import com.internetitem.sqshy.util.DatabaseUtil;
 import com.internetitem.sqshy.util.StringUtil;
 
@@ -25,20 +23,21 @@ public class Settings {
 	private Output originalLogger;
 	private Output logger;
 	private Connection conn;
-	private Map<String, String> localVariables;
+	private Map<String, String> variables;
 	private List<DriverMatch> driverInfos;
-	private LinkedList<SettingsSet> settingsSets;
 	private Set<String> loadedClasses;
 	List<DatabaseConnectionConfig> savedConnections;
 
 	public Settings() {
-		this.settingsSets = new LinkedList<>();
-		this.localVariables = new HashMap<>();
+		this.variables = new HashMap<>();
 		this.loadedClasses = new HashSet<>();
 	}
 
-	public void addSet(SettingsSet set) {
-		settingsSets.addFirst(set);
+	public void addVariables(Map<String, String> newVariables) {
+		if (newVariables == null) {
+			return;
+		}
+		variables.putAll(newVariables);
 	}
 
 	public void connect(String alias, String driverClass, String url, String username, String password, Map<String, String> connectionProperties) throws CommandException {
@@ -68,7 +67,7 @@ public class Settings {
 					}
 					Map<String, String> variables = dcc.getVariables();
 					if (variables != null) {
-						setVariables(variables);
+						addVariables(variables);
 					}
 					break OUTER;
 				}
@@ -105,10 +104,6 @@ public class Settings {
 		} catch (SQLException e) {
 			throw new CommandException("Unable to connect: " + e.getMessage());
 		}
-	}
-
-	private void setVariables(Map<String, String> variables) {
-		this.localVariables.putAll(variables);
 	}
 
 	public Output getOutput() {
@@ -148,17 +143,14 @@ public class Settings {
 		this.logger = logger;
 		this.originalLogger = logger;
 		this.savedConnections = savedConnections;
-		addSet(new SettingsSet(SettingSource.User, null, localVariables));
 	}
 
 	public String getStringValue(String name, String defaultValue) {
-		for (SettingsSet set : settingsSets) {
-			String value = set.getValue(name);
-			if (value != null) {
-				return value;
-			}
+		if (variables.containsKey(name)) {
+			return variables.get(name);
+		} else {
+			return defaultValue;
 		}
-		return defaultValue;
 	}
 
 	public String getStringValue(String name) {

@@ -22,8 +22,6 @@ import com.internetitem.sqshy.config.args.ListValue;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
 import com.internetitem.sqshy.config.args.StringValue;
 import com.internetitem.sqshy.settings.Settings;
-import com.internetitem.sqshy.settings.SettingsSet;
-import com.internetitem.sqshy.settings.SettingsSet.SettingSource;
 
 public class RunSqshy {
 
@@ -62,7 +60,7 @@ public class RunSqshy {
 
 		Settings settings = new Settings();
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
-		settings.addSet(new SettingsSet(SettingSource.DefaultConfig, null, globalConfig.getVariables()));
+		settings.addVariables(globalConfig.getVariables());
 
 		String settingsFilename = cmdline.getValue("settings");
 		File settingsFile;
@@ -80,10 +78,7 @@ public class RunSqshy {
 			String filename = settingsFile.getAbsolutePath();
 			System.err.println("Loading settings file from " + filename);
 			config = Configuration.loadFromFile(settingsFile);
-			Map<String, String> variables = config.getVariables();
-			if (variables != null) {
-				settings.addSet(new SettingsSet(SettingSource.UserConfig, filename, variables));
-			}
+			settings.addVariables(config.getVariables());
 			if (config.getDrivers() != null) {
 				driverInfos.addAll(config.getDrivers());
 			}
@@ -107,13 +102,7 @@ public class RunSqshy {
 		Map<String, String> connectionProperties = listToMap(properties);
 		String alias = cmdline.getValue("connect");
 
-		List<String> variableList = cmdline.getList("set");
-		if (variableList != null) {
-			Map<String, String> variables = listToMap(variableList);
-			if (variables != null) {
-				settings.addSet(new SettingsSet(SettingSource.CommandLine, null, variables));
-			}
-		}
+		settings.addVariables(listToMap(cmdline.getList("set")));
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
