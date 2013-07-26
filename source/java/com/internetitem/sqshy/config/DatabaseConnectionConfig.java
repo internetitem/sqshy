@@ -1,21 +1,37 @@
 package com.internetitem.sqshy.config;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseConnectionConfig {
 
+	private String alias;
 	private String driverClass;
 	private String url;
 	private String username;
 	private String password;
-	private Map<String, String> connectionProperties;
+	private Map<String, String> properties;
+	private Map<String, String> variables;
 
-	public DatabaseConnectionConfig(String driverClass, String url, String username, String password, Map<String, String> connectionProperties) {
+	public DatabaseConnectionConfig() {
+		this.properties = new HashMap<>();
+		this.variables = new HashMap<>();
+	}
+
+	public DatabaseConnectionConfig(String driverClass, String url, String username, String password) {
+		this();
 		this.driverClass = driverClass;
 		this.url = url;
 		this.username = username;
 		this.password = password;
-		this.connectionProperties = connectionProperties;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
+	public void setAlias(String alias) {
+		this.alias = alias;
 	}
 
 	public String getDriverClass() {
@@ -50,12 +66,19 @@ public class DatabaseConnectionConfig {
 		this.password = password;
 	}
 
-	public Map<String, String> getConnectionProperties() {
-		return connectionProperties;
+	public Map<String, String> getProperties() {
+		return properties;
 	}
 
-	public void setConnectionProperties(Map<String, String> connectionProperties) {
-		this.connectionProperties = connectionProperties;
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 
+	public Map<String, String> getVariables() {
+		return variables;
+	}
+
+	public void setVariables(Map<String, String> variables) {
+		this.variables = variables;
+	}
 }
