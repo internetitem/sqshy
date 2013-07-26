@@ -15,6 +15,10 @@ public abstract class CommandWithArguments implements Command {
 		this.parameters = new ArrayList<>();
 	}
 
+	protected boolean interpolateNext(List<String> parameters) {
+		return false;
+	}
+
 	@Override
 	public void addLine(String line) throws CommandException {
 		if (line == null) {
@@ -22,10 +26,22 @@ public abstract class CommandWithArguments implements Command {
 		}
 
 		char quoteChar = 0;
+		StringBuilder variableBuilder = null;
 		StringBuilder tokenBuilder = null;
 		for (int i = 0; i < line.length(); i++) {
 			char ch = line.charAt(i);
-			if (ch == '\\') {
+			if (variableBuilder != null) {
+				if (ch == '}') {
+					String value = settings.getStringValue(variableBuilder.toString());
+					if (value == null) {
+						value = "";
+					}
+					tokenBuilder.append(value);
+					variableBuilder = null;
+				} else {
+					variableBuilder.append(ch);
+				}
+			} else if (ch == '\\') {
 				if (tokenBuilder == null) {
 					tokenBuilder = new StringBuilder();
 				}
@@ -66,7 +82,12 @@ public abstract class CommandWithArguments implements Command {
 				if (ch == quoteChar) {
 					quoteChar = 0;
 				} else {
-					tokenBuilder.append(ch);
+					if (interpolateNext(parameters) && quoteChar == '"' && ch == '$' && i + 1 < line.length() && line.charAt(i + 1) == '{') {
+						i++;
+						variableBuilder = new StringBuilder();
+					} else {
+						tokenBuilder.append(ch);
+					}
 				}
 			} else if (ch == '\'' || ch == '"') {
 				if (tokenBuilder == null) {
@@ -90,11 +111,19 @@ public abstract class CommandWithArguments implements Command {
 				if (tokenBuilder == null) {
 					tokenBuilder = new StringBuilder();
 				}
-				tokenBuilder.append(ch);
+				if (interpolateNext(parameters) && ch == '$' && i + 1 < line.length() && line.charAt(i + 1) == '{') {
+					variableBuilder = new StringBuilder();
+					i++;
+				} else {
+					tokenBuilder.append(ch);
+				}
 			}
 		}
 		if (tokenBuilder != null) {
 			parameters.add(tokenBuilder.toString());
+		}
+		if (variableBuilder != null) {
+			throw new CommandException("unclosed variable reference");
 		}
 		if (quoteChar != 0) {
 			throw new CommandException("unclosed " + quoteChar + " quote");

@@ -16,6 +16,15 @@ public class SetCommand extends CommandWithArguments {
 	}
 
 	@Override
+	protected boolean interpolateNext(List<String> parameters) {
+		if (parameters.size() >= 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	protected void execute(Settings settings, List<String> parameters) throws CommandException {
 		Output output = settings.getOutput();
 		if (parameters.size() == 0) {
@@ -43,8 +52,7 @@ public class SetCommand extends CommandWithArguments {
 		} else if (parameters.size() == 2) {
 			String name = parameters.get(0);
 			String value = parameters.get(1);
-			String realValue = StringUtil.interpolate(value, settings.getVariables());
-			settings.setValue(name, realValue);
+			settings.setValue(name, value);
 		} else {
 			throw new CommandException("wrong number of arguments to set");
 		}

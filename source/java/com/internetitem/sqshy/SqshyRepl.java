@@ -24,7 +24,7 @@ public class SqshyRepl {
 
 	private Command command;
 	private String prompt;
-	
+
 	public void repl() throws IOException {
 		String line;
 		prompt = settings.getPrompt();
@@ -47,7 +47,7 @@ public class SqshyRepl {
 		}
 		DatabaseUtil.closeConnection(settings.getConnection());
 	}
-	
+
 	private void reset() {
 		command = null;
 		prompt = settings.getPrompt();
