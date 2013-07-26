@@ -37,9 +37,8 @@ public class SqshyRepl {
 				}
 				prompt = command.getPrompt();
 				if (command.isReady()) {
-					Command tmpCommand = command;
+					command.execute();
 					reset();
-					tmpCommand.execute();
 				}
 			} catch (CommandException e) {
 				reset();

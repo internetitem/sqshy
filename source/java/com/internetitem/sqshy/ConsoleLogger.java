@@ -37,4 +37,9 @@ public class ConsoleLogger implements Output {
 		outputLine(message);
 	}
 
+	@Override
+	public void output(String message) {
+		outputLine(message);
+	}
+
 }

@@ -153,6 +153,10 @@ public class Settings {
 		}
 	}
 
+	public boolean hasValue(String name) {
+		return variables.containsKey(name);
+	}
+
 	public String getStringValue(String name) {
 		return getStringValue(name, null);
 	}
@@ -183,6 +187,10 @@ public class Settings {
 		}
 	}
 
+	public Map<String, String> getVariables() {
+		return variables;
+	}
+
 	public String getPrompt() {
 		return getStringValue("prompt", "sql> ");
 	}
@@ -197,6 +205,10 @@ public class Settings {
 
 	public String getDelimiter() {
 		return getStringValue("delimiter", ";");
+	}
+
+	public void setValue(String name, String value) {
+		variables.put(name, value);
 	}
 
 }

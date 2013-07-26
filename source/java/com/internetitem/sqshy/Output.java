@@ -8,4 +8,6 @@ public interface Output {
 
 	void error(String message);
 
+	void output(String message);
+
 }

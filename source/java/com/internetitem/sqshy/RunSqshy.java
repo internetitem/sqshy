@@ -12,6 +12,8 @@ import jline.console.ConsoleReader;
 
 import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.command.ConnectCommand;
+import com.internetitem.sqshy.command.EchoCommand;
+import com.internetitem.sqshy.command.SetCommand;
 import com.internetitem.sqshy.config.Configuration;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
 import com.internetitem.sqshy.config.DriverMatch;
@@ -110,6 +112,8 @@ public class RunSqshy {
 		settings.init(driverInfos, dcc, logger);
 		Commands commands = new Commands(settings);
 		commands.addCommand("connect", ConnectCommand.class);
+		commands.addCommand("\\set", SetCommand.class);
+		commands.addCommand("\\echo", EchoCommand.class);
 		if (url != null) {
 			settings.connect(alias, driverClass, url, username, password, connectionProperties);
 		}

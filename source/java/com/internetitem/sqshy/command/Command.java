@@ -2,7 +2,7 @@ package com.internetitem.sqshy.command;
 
 public interface Command {
 
-	void addLine(String line);
+	void addLine(String line) throws CommandException;
 
 	boolean isReady();
 
