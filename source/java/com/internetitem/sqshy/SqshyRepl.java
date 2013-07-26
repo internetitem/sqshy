@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import jline.console.ConsoleReader;
 
 import com.internetitem.sqshy.config.DriverMatch;
+import com.internetitem.sqshy.util.DatabaseUtil;
 
 public class SqshyRepl {
 
@@ -99,10 +100,11 @@ public class SqshyRepl {
 			} catch (SQLException e) {
 				reader.println("Error: " + e.getMessage());
 			} finally {
-				closeResultSet(rs);
-				closeStatement(stmt);
+				DatabaseUtil.closeResultSet(rs);
+				DatabaseUtil.closeStatement(stmt);
 			}
 		}
+		DatabaseUtil.closeConnection(conn);
 	}
 
 	private void displayResult(ResultSet rs) throws SQLException, IOException {
@@ -113,33 +115,4 @@ public class SqshyRepl {
 		reader.println("Query returned " + count + " rows");
 	}
 
-	public static void closeResultSet(ResultSet rs) {
-		try {
-			if (rs != null) {
-				rs.close();
-			}
-		} catch (Exception e) {
-			// Ignore
-		}
-	}
-
-	public static void closeStatement(Statement stmt) {
-		try {
-			if (stmt != null) {
-				stmt.close();
-			}
-		} catch (Exception e) {
-			// Ignore
-		}
-	}
-
-	public static void closeConnection(Connection conn) {
-		try {
-			if (conn != null) {
-				conn.close();
-			}
-		} catch (Exception e) {
-			// Ignore
-		}
-	}
 }

@@ -3,7 +3,8 @@
 		"delimiter": ";",
 		"gocmd": "\\go",
 		"quotechars": "['\"]",
-		"resultcount": "true"
+		"resultcount": "true",
+		"prompt": "sql> "
 	},
 	"drivers": [
 		{"match": "mysql", "driver": "com.mysql.jdbc.Driver"}

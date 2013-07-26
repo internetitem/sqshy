@@ -26,13 +26,13 @@ public class RunSqshy {
 	public static CommandLineParser buildCommandLineParser() {
 		CommandLineParser parser = new CommandLineParser();
 		parser.addArg(new BooleanValue("help", "View help message", new String[] { "--help", "-h", "-?" }));
-		parser.addArg(new StringValue("connect", "Connect to saved alias\n(other connection settings override those in the alias)", new String[] { "--connect", "-c" }, true));
-		parser.addArg(new StringValue("driver", "JDBC Driver Class\nIf not specified, will be guessed based on URL", new String[] { "--driver", "-d" }, true));
-		parser.addArg(new StringValue("url", "JDBC URL", new String[] { "--url", "-u" }, true));
-		parser.addArg(new StringValue("username", "Database Username", new String[] { "--username", "-U" }, true));
-		parser.addArg(new StringValue("password", "Database Password\nIf the string @ is used, the user will be prompted", new String[] { "--password", "-P" }, true));
+		parser.addArg(new StringValue("connect", "Connect to saved alias\n(other connection settings override those in the alias)", new String[] { "--connect", "-c" }, false));
+		parser.addArg(new StringValue("driver", "JDBC Driver Class\nIf not specified, will be guessed based on URL", new String[] { "--driver", "-d" }, false));
+		parser.addArg(new StringValue("url", "JDBC URL", new String[] { "--url", "-u" }, false));
+		parser.addArg(new StringValue("username", "Database Username", new String[] { "--username", "-U" }, false));
+		parser.addArg(new StringValue("password", "Database Password\nIf the string @ is used, the user will be prompted", new String[] { "--password", "-P" }, false));
 		parser.addArg(new ListValue("properties", "JDBC Properties (key=value)", new String[] { "--properties" }));
-		parser.addArg(new StringValue("settings", "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored", new String[] { "--settings", "-s" }, true));
+		parser.addArg(new StringValue("settings", "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored", new String[] { "--settings", "-s" }, false));
 		return parser;
 	}
 
