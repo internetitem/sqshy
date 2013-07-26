@@ -72,7 +72,7 @@ public class SqlCommand implements Command {
 			do {
 				rs = stmt.getResultSet();
 				if (rs != null) {
-					displayResult(rs);
+					out.resultSet(rs);
 				} else {
 					int updateCount = stmt.getUpdateCount();
 					out.rowCount("Affected " + updateCount + " rows");
@@ -82,15 +82,6 @@ public class SqlCommand implements Command {
 			DatabaseUtil.closeResultSet(rs);
 			DatabaseUtil.closeStatement(stmt);
 		}
-	}
-
-	private void displayResult(ResultSet rs) throws SQLException {
-		Output out = settings.getOutput();
-		int count = 0;
-		while (rs.next()) {
-			count++;
-		}
-		out.rowCount("Query returned " + count + " rows");
 	}
 
 }
