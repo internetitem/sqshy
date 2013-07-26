@@ -26,7 +26,7 @@ public class SettingsSet {
 		return values.get(name);
 	}
 
-	public enum SettingSource {
+	public static enum SettingSource {
 		User,
 		CommandLine,
 		Connection,

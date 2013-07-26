@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -14,18 +15,24 @@ import java.util.regex.Pattern;
 import jline.console.ConsoleReader;
 
 import com.internetitem.sqshy.config.DriverMatch;
+import com.internetitem.sqshy.settings.Settings;
+import com.internetitem.sqshy.settings.SettingsSet;
+import com.internetitem.sqshy.settings.SettingsSet.SettingSource;
 import com.internetitem.sqshy.util.DatabaseUtil;
 
 public class SqshyRepl {
 
 	private ConsoleReader reader;
-	private Map<String, String> variables;
+	private Map<String, String> localVariables;
+	private Settings settings;
 	private List<DriverMatch> driverInfos;
 	private Connection conn = null;
 
-	public SqshyRepl(ConsoleReader reader, Map<String, String> variables, List<DriverMatch> driverInfos) {
+	public SqshyRepl(ConsoleReader reader, Settings settings, List<DriverMatch> driverInfos) {
+		this.localVariables = new HashMap<>();
 		this.reader = reader;
-		this.variables = variables;
+		this.settings = settings;
+		settings.addSet(new SettingsSet(SettingSource.User, null, localVariables));
 		this.driverInfos = driverInfos;
 	}
 

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import jline.Terminal;
 import jline.TerminalFactory;
@@ -20,6 +19,9 @@ import com.internetitem.sqshy.config.args.CommandLineParser;
 import com.internetitem.sqshy.config.args.ListValue;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
 import com.internetitem.sqshy.config.args.StringValue;
+import com.internetitem.sqshy.settings.Settings;
+import com.internetitem.sqshy.settings.SettingsSet;
+import com.internetitem.sqshy.settings.SettingsSet.SettingSource;
 
 public class RunSqshy {
 
@@ -33,6 +35,7 @@ public class RunSqshy {
 		parser.addArg(new StringValue("password", "Database Password\nIf the string @ is used, the user will be prompted", new String[] { "--password", "-P" }, false));
 		parser.addArg(new ListValue("properties", "JDBC Properties (key=value)", new String[] { "--properties" }));
 		parser.addArg(new StringValue("settings", "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored", new String[] { "--settings", "-s" }, false));
+		parser.addArg(new ListValue("set", "Set variables", new String[] { "--set" }));
 		return parser;
 	}
 
@@ -55,7 +58,9 @@ public class RunSqshy {
 			return;
 		}
 
+		Settings settings = new Settings();
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
+		settings.addSet(new SettingsSet(SettingSource.DefaultConfig, null, globalConfig.getVariables()));
 
 		String settingsFilename = cmdline.getValue("settings");
 		File settingsFile;
@@ -65,10 +70,20 @@ public class RunSqshy {
 			settingsFile = new File(System.getProperty("user.home"), ".sqshyrc");
 		}
 
+		List<DriverMatch> driverInfos = new ArrayList<>(globalConfig.getDrivers());
+
 		Configuration config = null;
 		if (settingsFile.isFile()) {
-			System.err.println("Loading settings file from " + settingsFile.getAbsolutePath());
+			String filename = settingsFile.getAbsolutePath();
+			System.err.println("Loading settings file from " + filename);
 			config = Configuration.loadFromFile(settingsFile);
+			Map<String, String> variables = config.getVariables();
+			if (variables != null) {
+				settings.addSet(new SettingsSet(SettingSource.UserConfig, filename, variables));
+			}
+			if (config.getDrivers() != null) {
+				driverInfos.addAll(config.getDrivers());
+			}
 		} else {
 			System.err.println("Warning: No settings file found in " + settingsFile.getAbsolutePath());
 		}
@@ -82,20 +97,7 @@ public class RunSqshy {
 			password = new String(System.console().readPassword());
 		}
 		List<String> properties = cmdline.getList("properties");
-		Map<String, String> connectionProperties = null;
-		if (!properties.isEmpty()) {
-			connectionProperties = new HashMap<>();
-			for (String s : properties) {
-				String[] parts = s.split("=", 2);
-				if (parts.length == 2) {
-					connectionProperties.put(parts[0], parts[1]);
-				} else {
-					connectionProperties.put(s, "true");
-				}
-			}
-		}
-
-		Map<String, String> variables = new HashMap<>();
+		Map<String, String> connectionProperties = listToMap(properties);
 
 		String alias = cmdline.getValue("connect");
 		OUTER: if (alias != null) {
@@ -119,7 +121,10 @@ public class RunSqshy {
 						if (properties == null) {
 							connectionProperties = dcc.getProperties();
 						}
-						putIfAbsent(variables, dcc.getVariables());
+						Map<String, String> variables = dcc.getVariables();
+						if (variables != null) {
+							settings.addSet(new SettingsSet(SettingSource.Connection, alias, variables));
+						}
 						break OUTER;
 					}
 				}
@@ -127,32 +132,35 @@ public class RunSqshy {
 			}
 		}
 
-		List<DriverMatch> driverInfos = new ArrayList<>(globalConfig.getDrivers());
-		if (config != null) {
-			putIfAbsent(variables, config.getVariables());
-			if (config.getDrivers() != null) {
-				driverInfos.addAll(config.getDrivers());
-			}
+		List<String> variableList = cmdline.getList("set");
+		if (variableList != null) {
+			Map<String, String> variables = listToMap(variableList);
+			settings.addSet(new SettingsSet(SettingSource.CommandLine, null, variables));
 		}
-		putIfAbsent(variables, globalConfig.getVariables());
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
-		SqshyRepl repl = new SqshyRepl(reader, variables, driverInfos);
+		SqshyRepl repl = new SqshyRepl(reader, settings, driverInfos);
 		if (url != null) {
 			repl.connect(driverClass, url, username, password, connectionProperties);
 		}
 		repl.start();
 	}
 
-	public static void putIfAbsent(Map<String, String> to, Map<String, String> from) {
-		if (from == null) {
-			return;
+	private static Map<String, String> listToMap(List<String> properties) {
+		if (properties == null || properties.isEmpty()) {
+			return null;
 		}
-		for (Entry<String, String> e : from.entrySet()) {
-			if (!to.containsKey(e.getKey())) {
-				to.put(e.getKey(), e.getValue());
+		Map<String, String> map = new HashMap<>();
+		for (String s : properties) {
+			String[] parts = s.split("=", 2);
+			if (parts.length == 2) {
+				map.put(parts[0], parts[1]);
+			} else {
+				map.put(s, "true");
 			}
 		}
+		return map;
 	}
+
 }
