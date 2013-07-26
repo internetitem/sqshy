@@ -11,6 +11,7 @@ import com.internetitem.sqshy.RunSqshy;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
+import com.internetitem.sqshy.config.args.StringValue;
 
 public class TestCommandLineParsing {
 
@@ -18,6 +19,7 @@ public class TestCommandLineParsing {
 
 	public TestCommandLineParsing() {
 		parser1 = RunSqshy.buildCommandLineParser();
+		parser1.addArg(new StringValue("test", "Test Value", new String[] { "-t", "--test" }, true));
 	}
 
 	@Test
@@ -53,13 +55,13 @@ public class TestCommandLineParsing {
 
 	@Test
 	public void testOptional() throws CommandLineParseException {
-		assertTrue(parser1.parse(new String[] { "--password" }).hasValue("password"));
-		assertEquals(null, parser1.parse(new String[] { "--password" }).getValue("password"));
-		assertEquals("foo", parser1.parse(new String[] { "--password", "foo" }).getValue("password"));
-		assertEquals("foo", parser1.parse(new String[] { "--password=foo" }).getValue("password"));
-		assertEquals("", parser1.parse(new String[] { "--password=" }).getValue("password"));
-		assertTrue(parser1.parse(new String[] { "--password", "--username", "foo" }).hasValue("password"));
-		assertEquals("", parser1.parse(new String[] { "--password=", "--username", "foo" }).getValue("password"));
+		assertTrue(parser1.parse(new String[] { "--test" }).hasValue("test"));
+		assertEquals(null, parser1.parse(new String[] { "--test" }).getValue("test"));
+		assertEquals("foo", parser1.parse(new String[] { "--test", "foo" }).getValue("test"));
+		assertEquals("foo", parser1.parse(new String[] { "--test=foo" }).getValue("test"));
+		assertEquals("", parser1.parse(new String[] { "--test=" }).getValue("test"));
+		assertTrue(parser1.parse(new String[] { "--test", "--username", "foo" }).hasValue("test"));
+		assertEquals("", parser1.parse(new String[] { "--test=", "--username", "foo" }).getValue("test"));
 	}
 
 	@Test

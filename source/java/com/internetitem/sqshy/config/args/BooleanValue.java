@@ -1,5 +1,7 @@
 package com.internetitem.sqshy.config.args;
 
+import com.internetitem.sqshy.util.StringUtil;
+
 public class BooleanValue extends CommandLineArgument<Boolean> {
 
 	public BooleanValue(String name, String description, String[] names) {
@@ -12,16 +14,8 @@ public class BooleanValue extends CommandLineArgument<Boolean> {
 		String value = args.peek();
 		if (value != null) {
 			if (firstWasSplit || !value.startsWith("-")) {
-				return parseValue(args.next());
+				return Boolean.valueOf(StringUtil.parseBoolean(args.next()));
 			}
-		}
-		return Boolean.TRUE;
-	}
-
-	private Boolean parseValue(String stringValue) {
-		String lower = stringValue.toLowerCase();
-		if (lower.startsWith("f") || lower.startsWith("n") || lower.equals("0")) {
-			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
 	}
