@@ -1,7 +1,11 @@
 package com.internetitem.sqshy;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.Properties;
 
@@ -22,7 +26,7 @@ public class SqshyRepl {
 		if (driverClass == null) {
 			throw new Exception("No JDBC Driver Class specified");
 		}
-		System.err.println("Connecting to URL " + url + " with driver " + driverClass);
+		reader.println("Connecting to URL " + url + " with driver " + driverClass);
 		try {
 			Class.forName(driverClass);
 		} catch (Exception e) {
@@ -49,8 +53,69 @@ public class SqshyRepl {
 	public void start() throws Exception {
 		String line;
 		while ((line = reader.readLine("sql> ")) != null) {
-			reader.println("You said [" + line + "]");
+			if (conn == null) {
+				reader.println("Not connected");
+				continue;
+			}
+
+			Statement stmt = null;
+			ResultSet rs = null;
+			try {
+				stmt = conn.createStatement();
+				stmt.execute(line);
+				do {
+					rs = stmt.getResultSet();
+					if (rs != null) {
+						displayResult(rs);
+					} else {
+						int updateCount = stmt.getUpdateCount();
+						reader.println("Affected " + updateCount + " rows");
+					}
+				} while (stmt.getMoreResults() || stmt.getUpdateCount() != -1);
+			} catch (SQLException e) {
+				reader.println("Error: " + e.getMessage());
+			} finally {
+				closeResultSet(rs);
+				closeStatement(stmt);
+			}
 		}
 	}
 
+	private void displayResult(ResultSet rs) throws SQLException, IOException {
+		int count = 0;
+		while (rs.next()) {
+			count++;
+		}
+		reader.println("Query returned " + count + " rows");
+	}
+
+	public static void closeResultSet(ResultSet rs) {
+		try {
+			if (rs != null) {
+				rs.close();
+			}
+		} catch (Exception e) {
+			// Ignore
+		}
+	}
+
+	public static void closeStatement(Statement stmt) {
+		try {
+			if (stmt != null) {
+				stmt.close();
+			}
+		} catch (Exception e) {
+			// Ignore
+		}
+	}
+
+	public static void closeConnection(Connection conn) {
+		try {
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (Exception e) {
+			// Ignore
+		}
+	}
 }
