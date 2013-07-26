@@ -29,7 +29,6 @@ public class SettingsSet {
 	public static enum SettingSource {
 		User,
 		CommandLine,
-		Connection,
 		UserConfig,
 		DefaultConfig
 	}

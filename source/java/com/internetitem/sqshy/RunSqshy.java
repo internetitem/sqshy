@@ -10,6 +10,8 @@ import jline.Terminal;
 import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 
+import com.internetitem.sqshy.command.Commands;
+import com.internetitem.sqshy.command.ConnectCommand;
 import com.internetitem.sqshy.config.Configuration;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
 import com.internetitem.sqshy.config.DriverMatch;
@@ -71,6 +73,7 @@ public class RunSqshy {
 		}
 
 		List<DriverMatch> driverInfos = new ArrayList<>(globalConfig.getDrivers());
+		List<DatabaseConnectionConfig> dcc = new ArrayList<>();
 
 		Configuration config = null;
 		if (settingsFile.isFile()) {
@@ -83,6 +86,10 @@ public class RunSqshy {
 			}
 			if (config.getDrivers() != null) {
 				driverInfos.addAll(config.getDrivers());
+			}
+			List<DatabaseConnectionConfig> connections = config.getConnections();
+			if (connections != null) {
+				dcc.addAll(connections);
 			}
 		} else {
 			System.err.println("Warning: No settings file found in " + settingsFile.getAbsolutePath());
@@ -98,53 +105,27 @@ public class RunSqshy {
 		}
 		List<String> properties = cmdline.getList("properties");
 		Map<String, String> connectionProperties = listToMap(properties);
-
 		String alias = cmdline.getValue("connect");
-		OUTER: if (alias != null) {
-			if (config == null) {
-				System.err.println("Warning: connect specified but no configuration loaded");
-			} else {
-				for (DatabaseConnectionConfig dcc : config.getConnections()) {
-					if (alias.equals(dcc.getAlias())) {
-						if (driverClass == null) {
-							driverClass = dcc.getDriverClass();
-						}
-						if (url == null) {
-							url = dcc.getUrl();
-						}
-						if (username == null) {
-							username = dcc.getUsername();
-						}
-						if (password == null) {
-							password = dcc.getPassword();
-						}
-						if (properties == null) {
-							connectionProperties = dcc.getProperties();
-						}
-						Map<String, String> variables = dcc.getVariables();
-						if (variables != null) {
-							settings.addSet(new SettingsSet(SettingSource.Connection, alias, variables));
-						}
-						break OUTER;
-					}
-				}
-				System.err.println("Warning: connect specified but alias not found");
-			}
-		}
 
 		List<String> variableList = cmdline.getList("set");
 		if (variableList != null) {
 			Map<String, String> variables = listToMap(variableList);
-			settings.addSet(new SettingsSet(SettingSource.CommandLine, null, variables));
+			if (variables != null) {
+				settings.addSet(new SettingsSet(SettingSource.CommandLine, null, variables));
+			}
 		}
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
-		SqshyRepl repl = new SqshyRepl(reader, settings, driverInfos);
+		ConsoleLogger logger = new ConsoleLogger(settings, reader);
+		settings.init(driverInfos, dcc, logger);
+		Commands commands = new Commands(settings);
+		commands.addCommand("connect", ConnectCommand.class);
 		if (url != null) {
-			repl.connect(driverClass, url, username, password, connectionProperties);
+			settings.connect(alias, driverClass, url, username, password, connectionProperties);
 		}
-		repl.start();
+		SqshyRepl repl = new SqshyRepl(reader, settings, commands);
+		repl.repl();
 	}
 
 	private static Map<String, String> listToMap(List<String> properties) {

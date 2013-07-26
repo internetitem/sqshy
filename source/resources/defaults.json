@@ -4,7 +4,8 @@
 		"gocmd": "\\go",
 		"quotechars": "['\"]",
 		"resultcount": "true",
-		"prompt": "sql> "
+		"prompt": "sql> ",
+		"prompt2": "> "
 	},
 	"drivers": [
 		{"match": "mysql", "driver": "com.mysql.jdbc.Driver"}

@@ -1,125 +1,75 @@
 package com.internetitem.sqshy;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
 
 import jline.console.ConsoleReader;
 
-import com.internetitem.sqshy.config.DriverMatch;
+import com.internetitem.sqshy.command.Command;
+import com.internetitem.sqshy.command.CommandException;
+import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.settings.Settings;
-import com.internetitem.sqshy.settings.SettingsSet;
-import com.internetitem.sqshy.settings.SettingsSet.SettingSource;
 import com.internetitem.sqshy.util.DatabaseUtil;
 
 public class SqshyRepl {
 
 	private ConsoleReader reader;
-	private Map<String, String> localVariables;
 	private Settings settings;
-	private List<DriverMatch> driverInfos;
-	private Connection conn = null;
+	private Commands commands = null;
 
-	public SqshyRepl(ConsoleReader reader, Settings settings, List<DriverMatch> driverInfos) {
-		this.localVariables = new HashMap<>();
+	public SqshyRepl(ConsoleReader reader, Settings settings, Commands commands) {
 		this.reader = reader;
 		this.settings = settings;
-		settings.addSet(new SettingsSet(SettingSource.User, null, localVariables));
-		this.driverInfos = driverInfos;
+		this.commands = commands;
 	}
 
-	public void connect(String driverClass, String url, String username, String password, Map<String, String> connectionProperties) throws Exception {
-		if (driverClass == null) {
-			findDriver(url);
-		}
-		if (driverClass != null) {
-			reader.println("Connecting to URL " + url + " with driver " + driverClass);
-			try {
-				Class.forName(driverClass);
-			} catch (Exception e) {
-				throw new Exception("Unable to load JDBC Driver Class [" + driverClass + "]: " + e.getMessage(), e);
-			}
-		} else {
-			reader.println("Connecting to URL " + url);
-		}
-
-		if (connectionProperties != null && !connectionProperties.isEmpty()) {
-			Properties props = new Properties();
-			props.putAll(connectionProperties);
-			if (!props.containsKey("user") && username != null) {
-				props.put("user", username);
-			}
-			if (!props.containsKey("password") && password != null) {
-				props.put("password", password);
-			}
-			conn = DriverManager.getConnection(url, props);
-		} else if (username != null || password != null) {
-			conn = DriverManager.getConnection(url, username, password);
-		} else {
-			conn = DriverManager.getConnection(url);
-		}
-	}
-
-	private void findDriver(String url) throws IOException {
-		reader.println("Scanning for JDBC Drivers");
-		for (DriverMatch match : driverInfos) {
-			if (Pattern.compile(match.getMatch()).matcher(url).find()) {
-				try {
-					Class.forName(match.getDriver());
-					reader.println("Loaded driver " + match.getDriver());
-				} catch (Exception e) {
-					reader.println("Unable to load driver " + match.getDriver() + ": " + e.getMessage());
-				}
-			}
-		}
-	}
-
-	public void start() throws Exception {
+	private Command command;
+	private String prompt;
+	
+	public void repl() throws IOException {
 		String line;
-		while ((line = reader.readLine("sql> ")) != null) {
-			if (conn == null) {
-				reader.println("Not connected");
-				continue;
-			}
-
-			Statement stmt = null;
-			ResultSet rs = null;
+		prompt = settings.getPrompt();
+		while ((line = reader.readLine(prompt)) != null) {
 			try {
-				stmt = conn.createStatement();
-				stmt.execute(line);
-				do {
-					rs = stmt.getResultSet();
-					if (rs != null) {
-						displayResult(rs);
-					} else {
-						int updateCount = stmt.getUpdateCount();
-						reader.println("Affected " + updateCount + " rows");
-					}
-				} while (stmt.getMoreResults() || stmt.getUpdateCount() != -1);
-			} catch (SQLException e) {
-				reader.println("Error: " + e.getMessage());
-			} finally {
-				DatabaseUtil.closeResultSet(rs);
-				DatabaseUtil.closeStatement(stmt);
+				if (command == null) {
+					command = getCommand(line);
+				} else {
+					command.addLine(line);
+				}
+				prompt = command.getPrompt();
+				if (command.isReady()) {
+					Command tmpCommand = command;
+					reset();
+					tmpCommand.execute();
+				}
+			} catch (CommandException e) {
+				reset();
+				settings.getOutput().error(e.getMessage());
 			}
 		}
-		DatabaseUtil.closeConnection(conn);
+		DatabaseUtil.closeConnection(settings.getConnection());
+	}
+	
+	private void reset() {
+		command = null;
+		prompt = settings.getPrompt();
 	}
 
-	private void displayResult(ResultSet rs) throws SQLException, IOException {
-		int count = 0;
-		while (rs.next()) {
-			count++;
+	private Command getCommand(String line) throws CommandException {
+		String trimmed = line.trim();
+		String[] parts = trimmed.split("\\s", 2);
+		String commandName = parts[0];
+		String remaining = null;
+		if (parts.length > 1) {
+			remaining = parts[1];
 		}
-		reader.println("Query returned " + count + " rows");
+		Command command = commands.getCommand(commandName);
+		if (command != null) {
+			command.addLine(remaining);
+		} else {
+			command = commands.getSqlCommand();
+			command.addLine(line);
+		}
+		return command;
 	}
 
 }
