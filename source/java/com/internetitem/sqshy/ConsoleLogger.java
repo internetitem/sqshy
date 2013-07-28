@@ -66,10 +66,10 @@ public class ConsoleLogger implements Output {
 			String[] values = new String[cols];
 			for (int i = 0; i < cols; i++) {
 				String value = rs.getString(i + 1);
-				values[i] = value;
 				if (value == null) {
 					value = "<null>";
 				}
+				values[i] = value;
 				if (value.length() > maxs[i]) {
 					maxs[i] = value.length();
 				}
