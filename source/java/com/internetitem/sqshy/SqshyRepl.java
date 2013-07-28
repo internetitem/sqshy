@@ -34,7 +34,6 @@ public class SqshyRepl {
 				if (command != null) {
 					prompt = command.getPrompt();
 				} else {
-
 					prompt = settings.getPrompt();
 				}
 			} catch (CommandException e) {

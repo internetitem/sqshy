@@ -1,6 +1,7 @@
 package com.internetitem.sqshy.settings;
 
 import com.internetitem.sqshy.ConnectionManager;
+import com.internetitem.sqshy.ConnectionManagerWrapper;
 import com.internetitem.sqshy.Output;
 import com.internetitem.sqshy.VariableManager;
 import com.internetitem.sqshy.command.CommandException;
@@ -28,6 +29,7 @@ public class Settings {
 		this.logger = logger;
 		this.originalLogger = logger;
 		this.connectionManager = connectionManager;
+		variableManager.setVariable("connectionManager", new ConnectionManagerWrapper(connectionManager));
 	}
 
 	public VariableManager getVariableManager() {

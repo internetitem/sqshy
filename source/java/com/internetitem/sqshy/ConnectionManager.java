@@ -18,6 +18,13 @@ import com.internetitem.sqshy.util.DatabaseUtil;
 
 public class ConnectionManager {
 
+	private String username;
+	private String password;
+	private String url;
+	private String driverClass;
+	private String alias;
+	private Properties properties;
+
 	private List<DriverMatch> driverInfos;
 	private Set<String> loadedClasses;
 	private List<DatabaseConnectionConfig> savedConnections;
@@ -63,6 +70,7 @@ public class ConnectionManager {
 					if (variables != null) {
 						settings.getVariableManager().addVariables(variables);
 					}
+					this.alias = alias;
 					break OUTER;
 				}
 			}
@@ -75,6 +83,7 @@ public class ConnectionManager {
 		if (driverClass != null) {
 			settings.getOutput().connectMessage("Connecting to URL " + url + " with driver " + driverClass);
 			loadDriver(driverClass, false);
+			this.driverClass = driverClass;
 		} else {
 			settings.getOutput().connectMessage("Connecting to URL " + url);
 		}
@@ -89,11 +98,19 @@ public class ConnectionManager {
 				if (!props.containsKey("password") && password != null) {
 					props.put("password", password);
 				}
+				this.properties = props;
+				this.username = username;
+				this.password = password;
+				this.url = url;
 				conn = DriverManager.getConnection(url, props);
 			} else if (username != null || password != null) {
 				conn = DriverManager.getConnection(url, username, password);
+				this.username = username;
+				this.password = password;
+				this.url = url;
 			} else {
 				conn = DriverManager.getConnection(url);
+				this.url = url;
 			}
 		} catch (SQLException e) {
 			throw new CommandException("Unable to connect: " + e.getMessage());
@@ -124,9 +141,35 @@ public class ConnectionManager {
 		}
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public String getDriverClass() {
+		return driverClass;
+	}
+
+	public String getAlias() {
+		return alias;
+	}
+
 	public void closeConnection() {
 		DatabaseUtil.closeConnection(conn);
 		conn = null;
+		this.username = null;
+		this.password = null;
+		this.url = null;
+		this.driverClass = null;
+		this.alias = null;
+		this.properties = null;
 	}
 
 }
