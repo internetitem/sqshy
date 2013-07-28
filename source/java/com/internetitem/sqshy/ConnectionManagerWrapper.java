@@ -27,6 +27,8 @@ public class ConnectionManagerWrapper implements Variable {
 			return connectionManager.getAlias();
 		} else if (partName.equals("driverClass")) {
 			return connectionManager.getDriverClass();
+		} else if (partName.equals("connected")) {
+			return new Boolean(connectionManager.getConnection() != null).toString();
 		} else {
 			throw new CommandException(fullName + " does not have property " + partName);
 		}
@@ -45,6 +47,7 @@ public class ConnectionManagerWrapper implements Variable {
 		maybeAdd(names, connectionManager.getUrl(), "url");
 		maybeAdd(names, connectionManager.getAlias(), "alias");
 		maybeAdd(names, connectionManager.getDriverClass(), "driverClass");
+		names.add("connected");
 		return names;
 	}
 

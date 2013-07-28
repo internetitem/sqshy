@@ -42,8 +42,23 @@ public class ConnectionManager {
 		return conn;
 	}
 
+	public void reconnect() throws CommandException {
+		settings.getOutput().connectMessage("Reconnecting to " + this.url);
+		closeConnection(false);
+		doConnect(this.username, this.password, this.url, this.properties);
+	}
+
+	public void disconnect() {
+		if (conn != null) {
+			settings.getOutput().connectMessage("Disconnecting from " + this.url);
+			closeConnection(false);
+		} else {
+			settings.getOutput().connectMessage("Not connected");
+		}
+	}
+
 	public void connect(String alias, String driverClass, String url, String username, String password, Map<String, String> connectionProperties) throws CommandException {
-		closeConnection();
+		closeConnection(true);
 
 		OUTER: if (alias != null) {
 			if (savedConnections == null || savedConnections.isEmpty()) {
@@ -88,10 +103,18 @@ public class ConnectionManager {
 			settings.getOutput().connectMessage("Connecting to URL " + url);
 		}
 
+		Properties props = null;
+		if (connectionProperties != null && !connectionProperties.isEmpty()) {
+			props = new Properties();
+			props.putAll(connectionProperties);
+		}
+
+		doConnect(username, password, url, props);
+	}
+
+	private void doConnect(String username, String password, String url, Properties props) throws CommandException {
 		try {
-			if (connectionProperties != null && !connectionProperties.isEmpty()) {
-				Properties props = new Properties();
-				props.putAll(connectionProperties);
+			if (props != null && !props.isEmpty()) {
 				if (!props.containsKey("user") && username != null) {
 					props.put("user", username);
 				}
@@ -161,15 +184,17 @@ public class ConnectionManager {
 		return alias;
 	}
 
-	public void closeConnection() {
+	public void closeConnection(boolean clearVariables) {
 		DatabaseUtil.closeConnection(conn);
 		conn = null;
-		this.username = null;
-		this.password = null;
-		this.url = null;
-		this.driverClass = null;
-		this.alias = null;
-		this.properties = null;
+		if (clearVariables) {
+			this.username = null;
+			this.password = null;
+			this.url = null;
+			this.driverClass = null;
+			this.alias = null;
+			this.properties = null;
+		}
 	}
 
 }

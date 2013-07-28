@@ -12,7 +12,9 @@ import jline.console.ConsoleReader;
 
 import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.command.ConnectCommand;
+import com.internetitem.sqshy.command.DisconnectCommand;
 import com.internetitem.sqshy.command.EchoCommand;
+import com.internetitem.sqshy.command.ReconnectCommand;
 import com.internetitem.sqshy.command.SetCommand;
 import com.internetitem.sqshy.config.Configuration;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
@@ -110,7 +112,9 @@ public class RunSqshy {
 		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, dcc);
 		settings.init(logger, connectionManager);
 		Commands commands = new Commands(settings);
-		commands.addCommand("connect", ConnectCommand.class);
+		commands.addCommand("\\connect", ConnectCommand.class);
+		commands.addCommand("\\disconnect", DisconnectCommand.class);
+		commands.addCommand("\\reconnect", ReconnectCommand.class);
 		commands.addCommand("\\set", SetCommand.class);
 		commands.addCommand("\\echo", EchoCommand.class);
 		if (url != null) {

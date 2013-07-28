@@ -128,6 +128,6 @@ public class SqshyRepl {
 				settings.getOutput().error(e.getMessage());
 			}
 		}
-		settings.getConnectionManager().closeConnection();
+		settings.getConnectionManager().closeConnection(true);
 	}
 }
