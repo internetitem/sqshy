@@ -1,29 +1,45 @@
 package com.internetitem.sqshy.config.args;
 
-public abstract class CommandLineArgument<T> {
+public class CommandLineArgument {
 
 	private String name;
-	private String[] names;
+	private String shortName;
+	private String longName;
+	private ArgumentType argumentType;
 	private String description;
 
-	public CommandLineArgument(String name, String description, String... names) {
+	public CommandLineArgument(String name, String shortName, String longName, ArgumentType argumentType, String description) {
 		this.name = name;
+		this.shortName = shortName;
+		this.longName = longName;
+		this.argumentType = argumentType;
 		this.description = description;
-		this.names = names;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public String[] getNames() {
-		return names;
+	public String getShortName() {
+		return shortName;
+	}
+
+	public String getLongName() {
+		return longName;
+	}
+
+	public ArgumentType getArgumentType() {
+		return argumentType;
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
-	protected abstract T parse(CommandLineState args) throws CommandLineParseException;
-
+	public static enum ArgumentType {
+		NoArg,
+		OptionalArg,
+		RequiredArg,
+		List
+	}
 }

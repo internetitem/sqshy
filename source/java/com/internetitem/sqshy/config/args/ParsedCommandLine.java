@@ -4,52 +4,62 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.internetitem.sqshy.util.StringUtil;
+
 public class ParsedCommandLine {
 
 	private List<String> extraArgs;
-	private Map<String, Object> values;
+	private Map<String, String> stringValues;
+	private Map<String, List<String>> listValues;
 
-	ParsedCommandLine(List<String> extraArgs, Map<String, Object> values) {
+	public ParsedCommandLine(List<String> extraArgs, Map<String, String> stringValues, Map<String, List<String>> listValues) {
 		this.extraArgs = extraArgs;
-		this.values = values;
+		this.stringValues = stringValues;
+		this.listValues = listValues;
 	}
 
 	public List<String> getExtraArgs() {
 		return extraArgs;
 	}
 
-	public boolean hasValue(String name) {
-		return values.containsKey(name);
+	public boolean hasStringValue(String name) {
+		return stringValues.containsKey(name);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> T getValue(String name) {
-		return (T) values.get(name);
+	public List<String> getListValues(String name) {
+		if (listValues.containsKey(name)) {
+			return listValues.get(name);
+		} else {
+			return Collections.emptyList();
+		}
+	}
+
+	public String getStringValue(String name) {
+		return stringValues.get(name);
 	}
 
 	public int getIntValue(String name, int defaultValue) {
-		if (hasValue(name)) {
-			return ((Integer) values.get(name)).intValue();
-		} else {
-			return defaultValue;
+		String stringValue = getStringValue(name);
+		if (stringValue != null) {
+			try {
+				return Integer.parseInt(stringValue);
+			} catch (Exception e) {
+				// Ignore
+			}
 		}
+		return defaultValue;
 	}
 
 	public boolean getBoolValue(String name) {
-		if (hasValue(name)) {
-			return ((Boolean) values.get(name)).booleanValue();
+		if (hasStringValue(name)) {
+			String stringValue = getStringValue(name);
+			if (stringValue != null) {
+				return StringUtil.parseBoolean(stringValue);
+			} else {
+				return true;
+			}
 		} else {
 			return false;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public List<String> getList(String name) {
-		if (hasValue(name)) {
-
-			return ((List<String>) values.get(name));
-		} else {
-			return Collections.emptyList();
 		}
 	}
 }

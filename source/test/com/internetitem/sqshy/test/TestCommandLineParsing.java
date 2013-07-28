@@ -2,16 +2,15 @@ package com.internetitem.sqshy.test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.internetitem.sqshy.RunSqshy;
+import com.internetitem.sqshy.config.args.CommandLineArgument.ArgumentType;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
-import com.internetitem.sqshy.config.args.StringValue;
 
 public class TestCommandLineParsing {
 
@@ -19,15 +18,13 @@ public class TestCommandLineParsing {
 
 	public TestCommandLineParsing() {
 		parser1 = RunSqshy.buildCommandLineParser();
-		parser1.addArg(new StringValue("test", "Test Value", new String[] { "-t", "--test" }, true));
+		parser1.addArg("test", "test", "t", ArgumentType.OptionalArg, "Test Value");
 	}
 
 	@Test
 	public void testBooleans() throws CommandLineParseException {
 		assertTrue(parser1.parse(new String[] { "-h" }).getBoolValue("help"));
 		assertTrue(parser1.parse(new String[] { "--help" }).getBoolValue("help"));
-		assertFalse(parser1.parse(new String[] { "--help=false" }).getBoolValue("help"));
-		assertFalse(parser1.parse(new String[] { "--help", "false" }).getBoolValue("help"));
 		assertTrue(parser1.parse(new String[] { "--help", "--username", "bob" }).getBoolValue("help"));
 	}
 
@@ -43,31 +40,31 @@ public class TestCommandLineParsing {
 
 	@Test
 	public void testRequiredValue() throws CommandLineParseException {
-		assertEquals("foo", parser1.parse(new String[] { "--help", "--username", "foo" }).getValue("username"));
+		assertEquals("foo", parser1.parse(new String[] { "--help", "--username", "foo" }).getStringValue("username"));
 	}
 
 	@Test
 	public void testConsume() throws CommandLineParseException {
-		ParsedCommandLine consumed = parser1.parse(new String[] { "--help", "false", "--", "blah", "--arg" });
-		assertFalse(consumed.getBoolValue("help"));
-		assertArrayEquals(consumed.getExtraArgs().toArray(new String[0]), new String[] { "blah", "--arg" });
+		ParsedCommandLine consumed = parser1.parse(new String[] { "--help", "--", "blah", "--arg" });
+		assertTrue(consumed.getBoolValue("help"));
+		assertArrayEquals(new String[] { "blah", "--arg" }, consumed.getExtraArgs().toArray(new String[0]));
 	}
 
 	@Test
 	public void testOptional() throws CommandLineParseException {
-		assertTrue(parser1.parse(new String[] { "--test" }).hasValue("test"));
-		assertEquals(null, parser1.parse(new String[] { "--test" }).getValue("test"));
-		assertEquals("foo", parser1.parse(new String[] { "--test", "foo" }).getValue("test"));
-		assertEquals("foo", parser1.parse(new String[] { "--test=foo" }).getValue("test"));
-		assertEquals("", parser1.parse(new String[] { "--test=" }).getValue("test"));
-		assertTrue(parser1.parse(new String[] { "--test", "--username", "foo" }).hasValue("test"));
-		assertEquals("", parser1.parse(new String[] { "--test=", "--username", "foo" }).getValue("test"));
+		assertTrue(parser1.parse(new String[] { "--test" }).hasStringValue("test"));
+		assertEquals(null, parser1.parse(new String[] { "--test" }).getStringValue("test"));
+		assertEquals("foo", parser1.parse(new String[] { "--test", "foo" }).getStringValue("test"));
+		assertEquals("foo", parser1.parse(new String[] { "--test=foo" }).getStringValue("test"));
+		assertEquals("", parser1.parse(new String[] { "--test=" }).getStringValue("test"));
+		assertTrue(parser1.parse(new String[] { "--test", "--username", "foo" }).getBoolValue("test"));
+		assertEquals("", parser1.parse(new String[] { "--test=", "--username", "foo" }).getStringValue("test"));
 	}
 
 	@Test
 	public void testList() throws CommandLineParseException {
-		assertArrayEquals(parser1.parse(new String[] { "--properties", "one=1", "two=2" }).getList("properties").toArray(new String[0]), new String[] { "one=1", "two=2" });
-		assertArrayEquals(parser1.parse(new String[] { "--properties", "one=1", "two=2", "//", "--help" }).getList("properties").toArray(new String[0]), new String[] { "one=1", "two=2" });
-		assertArrayEquals(parser1.parse(new String[] { "--properties=;", "one=1", "two=2", ";", "--help" }).getList("properties").toArray(new String[0]), new String[] { "one=1", "two=2" });
+		assertArrayEquals(new String[] { "one=1", "two=2" }, parser1.parse(new String[] { "--property", "one=1", "two=2" }).getListValues("property").toArray(new String[0]));
+		assertArrayEquals(new String[] { "one=1", "two=2" }, parser1.parse(new String[] { "--property", "one=1", "two=2", "--help" }).getListValues("property").toArray(new String[0]));
+		assertArrayEquals(new String[] { "one=1", "two=2" }, parser1.parse(new String[] { "--property", "one=1", "--property", "two=2", "--help" }).getListValues("property").toArray(new String[0]));
 	}
 }

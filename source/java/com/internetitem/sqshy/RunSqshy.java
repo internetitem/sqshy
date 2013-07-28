@@ -17,27 +17,25 @@ import com.internetitem.sqshy.command.SetCommand;
 import com.internetitem.sqshy.config.Configuration;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
 import com.internetitem.sqshy.config.DriverMatch;
-import com.internetitem.sqshy.config.args.BooleanValue;
+import com.internetitem.sqshy.config.args.CommandLineArgument.ArgumentType;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
-import com.internetitem.sqshy.config.args.ListValue;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
-import com.internetitem.sqshy.config.args.StringValue;
 import com.internetitem.sqshy.settings.Settings;
 
 public class RunSqshy {
 
 	public static CommandLineParser buildCommandLineParser() {
 		CommandLineParser parser = new CommandLineParser();
-		parser.addArg(new BooleanValue("help", "View help message", new String[] { "--help", "-h", "-?" }));
-		parser.addArg(new StringValue("connect", "Connect to saved alias\n(other connection settings override those in the alias)", new String[] { "--connect", "-c" }, false));
-		parser.addArg(new StringValue("driver", "JDBC Driver Class\nIf not specified, will be guessed based on URL", new String[] { "--driver", "-d" }, false));
-		parser.addArg(new StringValue("url", "JDBC URL", new String[] { "--url", "-u" }, false));
-		parser.addArg(new StringValue("username", "Database Username", new String[] { "--username", "-U" }, false));
-		parser.addArg(new StringValue("password", "Database Password\nIf the string @ is used, the user will be prompted", new String[] { "--password", "-P" }, false));
-		parser.addArg(new ListValue("properties", "JDBC Properties (key=value)", new String[] { "--properties" }));
-		parser.addArg(new StringValue("settings", "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored", new String[] { "--settings", "-s" }, false));
-		parser.addArg(new ListValue("set", "Set variables", new String[] { "--set" }));
+		parser.addArg("help", "help", "h", ArgumentType.NoArg, "View help message");
+		parser.addArg("connect", "connect", "c", ArgumentType.RequiredArg, "Connect to saved alias\n(other connection settings override those in the alias");
+		parser.addArg("driver", "driver", "d", ArgumentType.RequiredArg, "JDBC Driver Class\nIf not specified, will be guessed based on URL");
+		parser.addArg("url", "url", "u", ArgumentType.RequiredArg, "JDBC URL");
+		parser.addArg("username", "username", "U", ArgumentType.RequiredArg, "Database Username");
+		parser.addArg("password", "password", "P", ArgumentType.RequiredArg, "Database Password\nIf the string @ is used, the user will be prompted");
+		parser.addArg("property", "property", "p", ArgumentType.List, "JDBC Properties (key=value)");
+		parser.addArg("settings", "settings", null, ArgumentType.RequiredArg, "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored");
+		parser.addArg("set", "set", "s", ArgumentType.List, "Set variables");
 		return parser;
 	}
 
@@ -64,7 +62,7 @@ public class RunSqshy {
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
 		settings.addVariables(globalConfig.getVariables());
 
-		String settingsFilename = cmdline.getValue("settings");
+		String settingsFilename = cmdline.getStringValue("settings");
 		File settingsFile;
 		if (settingsFilename != null) {
 			settingsFile = new File(settingsFilename);
@@ -92,19 +90,19 @@ public class RunSqshy {
 			System.err.println("Warning: No settings file found in " + settingsFile.getAbsolutePath());
 		}
 
-		String driverClass = cmdline.getValue("driver");
-		String url = cmdline.getValue("url");
-		String username = cmdline.getValue("username");
-		String password = cmdline.getValue("password");
+		String driverClass = cmdline.getStringValue("driver");
+		String url = cmdline.getStringValue("url");
+		String username = cmdline.getStringValue("username");
+		String password = cmdline.getStringValue("password");
 		if (password != null && password.equals("@")) {
 			System.out.print("Password: ");
 			password = new String(System.console().readPassword());
 		}
-		List<String> properties = cmdline.getList("properties");
+		List<String> properties = cmdline.getListValues("properties");
 		Map<String, String> connectionProperties = listToMap(properties);
-		String alias = cmdline.getValue("connect");
+		String alias = cmdline.getStringValue("connect");
 
-		settings.addVariables(listToMap(cmdline.getList("set")));
+		settings.addVariables(listToMap(cmdline.getListValues("set")));
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
