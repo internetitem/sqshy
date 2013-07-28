@@ -89,15 +89,16 @@ public class SqshyRepl {
 								continue;
 							} else if (op.equals("|")) {
 								String executable = consumer.consumeArg(true, settings);
+								List<String> arguments = new ArrayList<>();
 								if (executable == null) {
 									throw new CommandException("missing or invalid executable");
 								}
-								List<String> arguments = new ArrayList<>();
+								arguments.add(executable);
 								while (consumer.hasMore()) {
 									arguments.add(consumer.consumeArg(true, settings));
 								}
 								try {
-									PipeOutput po = new PipeOutput(settings, executable, arguments);
+									PipeOutput po = new PipeOutput(settings, arguments);
 									command.execute(po);
 									po.close();
 								} catch (IOException e) {
