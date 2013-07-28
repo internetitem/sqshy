@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.internetitem.sqshy.settings.Settings;
 
-public class PipeOutput extends AbstractOutput {
+public class PipeOutput extends CloseableOutput {
 
 	private Process process;
 	private OutputStream output;
@@ -36,6 +36,7 @@ public class PipeOutput extends AbstractOutput {
 		}
 	}
 
+	@Override
 	public void close() {
 		try {
 			writer.write('\n');

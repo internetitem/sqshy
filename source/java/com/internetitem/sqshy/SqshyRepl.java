@@ -73,40 +73,40 @@ public class SqshyRepl {
 						if (op != null) {
 							consumer.consumeLastFind();
 
-							if (op.startsWith(">")) {
-								String outfile = consumer.consumeArg(true, settings);
-								if (outfile == null) {
-									throw new CommandException("missing or invalid filename");
+							String errorMessage = null;
+							try {
+								CloseableOutput out = null;
+								if (op.startsWith(">")) {
+									String outfile = consumer.consumeArg(true, settings);
+									if (outfile == null) {
+										throw new CommandException("missing or invalid filename");
+									}
+									errorMessage = "Error writing to file " + outfile;
+									out = new FileOutput(settings, outfile, op.equals(">>"));
+								} else if (op.equals("|")) {
+									String executable = consumer.consumeArg(true, settings);
+									List<String> arguments = new ArrayList<>();
+									if (executable == null) {
+										throw new CommandException("missing or invalid executable");
+									}
+									arguments.add(executable);
+									while (consumer.hasMore()) {
+										arguments.add(consumer.consumeArg(true, settings));
+									}
+									errorMessage = "Error piping to " + executable + ":";
+									out = new PipeOutput(settings, arguments);
 								}
-								try {
-									FileOutput fo = new FileOutput(settings, outfile, op.equals(">>"));
-									command.execute(fo);
-									fo.close();
-								} catch (IOException e) {
-									throw new CommandException("Error writing to file " + outfile + ": " + e.getMessage());
+
+								if (out != null) {
+									command.execute(out);
+									out.close();
 								}
-								command = null;
-								continue;
-							} else if (op.equals("|")) {
-								String executable = consumer.consumeArg(true, settings);
-								List<String> arguments = new ArrayList<>();
-								if (executable == null) {
-									throw new CommandException("missing or invalid executable");
-								}
-								arguments.add(executable);
-								while (consumer.hasMore()) {
-									arguments.add(consumer.consumeArg(true, settings));
-								}
-								try {
-									PipeOutput po = new PipeOutput(settings, arguments);
-									command.execute(po);
-									po.close();
-								} catch (IOException e) {
-									throw new CommandException("Error piping to " + executable + ": " + e.getMessage());
-								}
-								command = null;
-								continue;
+							} catch (IOException e) {
+								throw new CommandException(errorMessage + ": " + e.getMessage());
 							}
+
+							command = null;
+							continue;
 						}
 
 						if (command.isDone() || (!consumer.hasMore() && !command.isMultiline())) {

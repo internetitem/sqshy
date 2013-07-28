@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import com.internetitem.sqshy.settings.Settings;
 
-public class FileOutput extends AbstractOutput {
+public class FileOutput extends CloseableOutput {
 
 	private FileWriter writer;
 
@@ -25,6 +25,7 @@ public class FileOutput extends AbstractOutput {
 		}
 	}
 
+	@Override
 	public void close() {
 		try {
 			writer.close();
