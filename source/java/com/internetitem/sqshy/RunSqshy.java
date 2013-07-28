@@ -60,7 +60,7 @@ public class RunSqshy {
 
 		Settings settings = new Settings();
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
-		settings.addVariables(globalConfig.getVariables());
+		settings.getVariableManager().addVariables(globalConfig.getVariables());
 
 		String settingsFilename = cmdline.getStringValue("settings");
 		File settingsFile;
@@ -78,7 +78,7 @@ public class RunSqshy {
 			String filename = settingsFile.getAbsolutePath();
 			System.err.println("Loading settings file from " + filename);
 			config = Configuration.loadFromFile(settingsFile);
-			settings.addVariables(config.getVariables());
+			settings.getVariableManager().addVariables(config.getVariables());
 			if (config.getDrivers() != null) {
 				driverInfos.addAll(config.getDrivers());
 			}
@@ -102,7 +102,7 @@ public class RunSqshy {
 		Map<String, String> connectionProperties = listToMap(properties);
 		String alias = cmdline.getStringValue("connect");
 
-		settings.addVariables(listToMap(cmdline.getListValues("set")));
+		settings.getVariableManager().addVariables(listToMap(cmdline.getListValues("set")));
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);

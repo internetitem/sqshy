@@ -30,10 +30,15 @@ public class SqshyRepl {
 
 		while (true) {
 			String prompt;
-			if (command != null) {
-				prompt = command.getPrompt();
-			} else {
-				prompt = settings.getPrompt();
+			try {
+				if (command != null) {
+					prompt = command.getPrompt();
+				} else {
+
+					prompt = settings.getPrompt();
+				}
+			} catch (CommandException e) {
+				prompt = "sql> "; // This can't really happen
 			}
 			String line = reader.readLine(prompt);
 			if (line == null) {

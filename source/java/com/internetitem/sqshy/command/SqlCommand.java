@@ -98,7 +98,7 @@ public class SqlCommand implements Command {
 	}
 
 	@Override
-	public String getPrompt() {
+	public String getPrompt() throws CommandException {
 		return settings.getPrompt2();
 	}
 

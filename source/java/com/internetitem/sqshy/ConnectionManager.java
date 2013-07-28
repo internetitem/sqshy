@@ -3,6 +3,7 @@ package com.internetitem.sqshy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -27,6 +28,7 @@ public class ConnectionManager {
 		this.settings = settings;
 		this.driverInfos = driverInfo;
 		this.savedConnections = savedConnections;
+		this.loadedClasses = new HashSet<>();
 	}
 
 	public Connection getConnection() {
@@ -59,7 +61,7 @@ public class ConnectionManager {
 					}
 					Map<String, String> variables = dcc.getVariables();
 					if (variables != null) {
-						settings.addVariables(variables);
+						settings.getVariableManager().addVariables(variables);
 					}
 					break OUTER;
 				}

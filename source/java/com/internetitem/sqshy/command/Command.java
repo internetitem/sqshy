@@ -9,7 +9,7 @@ public interface Command {
 
 	void execute(Output output) throws CommandException;
 
-	String getPrompt();
+	String getPrompt() throws CommandException;
 
 	boolean couldBeDone();
 

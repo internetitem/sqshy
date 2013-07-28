@@ -71,7 +71,7 @@ public class StringConsumer {
 			char ch = consume();
 			if (variableBuilder != null) {
 				if (ch == '}') {
-					String value = settings.getStringValue(variableBuilder.toString());
+					String value = settings.getVariableManager().getValue(variableBuilder.toString(), null);
 					if (value == null) {
 						value = "";
 					}
