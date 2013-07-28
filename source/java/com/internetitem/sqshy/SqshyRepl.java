@@ -10,7 +10,6 @@ import com.internetitem.sqshy.command.Command;
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.settings.Settings;
-import com.internetitem.sqshy.util.DatabaseUtil;
 import com.internetitem.sqshy.util.StringConsumer;
 
 public class SqshyRepl {
@@ -125,6 +124,6 @@ public class SqshyRepl {
 				settings.getOutput().error(e.getMessage());
 			}
 		}
-		DatabaseUtil.closeConnection(settings.getConnection());
+		settings.getConnectionManager().closeConnection();
 	}
 }

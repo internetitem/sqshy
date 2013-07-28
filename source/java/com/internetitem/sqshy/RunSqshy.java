@@ -107,13 +107,14 @@ public class RunSqshy {
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
 		ConsoleLogger logger = new ConsoleLogger(settings, reader);
-		settings.init(driverInfos, dcc, logger);
+		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, dcc);
+		settings.init(logger, connectionManager);
 		Commands commands = new Commands(settings);
 		commands.addCommand("connect", ConnectCommand.class);
 		commands.addCommand("\\set", SetCommand.class);
 		commands.addCommand("\\echo", EchoCommand.class);
 		if (url != null) {
-			settings.connect(alias, driverClass, url, username, password, connectionProperties);
+			connectionManager.connect(alias, driverClass, url, username, password, connectionProperties);
 		}
 		SqshyRepl repl = new SqshyRepl(reader, settings, commands);
 		repl.repl();

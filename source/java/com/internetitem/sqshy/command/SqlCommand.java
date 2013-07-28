@@ -50,7 +50,7 @@ public class SqlCommand implements Command {
 	@Override
 	public void execute(Output output) throws CommandException {
 		try {
-			executeQuery(output, settings.getConnection(), sql.toString());
+			executeQuery(output, settings.getConnectionManager().getConnection(), sql.toString());
 		} catch (SQLException e) {
 			throw new CommandException("Error executing SQL: " + e.getMessage());
 		}

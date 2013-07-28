@@ -48,7 +48,7 @@ public class ConnectCommand extends CommandWithArguments {
 			throw new CommandException("Invalid connect syntax");
 		}
 		Map<String, String> connectionProperties = new HashMap<>();
-		settings.connect(alias, driverClass, url, username, password, connectionProperties);
+		settings.getConnectionManager().connect(alias, driverClass, url, username, password, connectionProperties);
 	}
 
 }

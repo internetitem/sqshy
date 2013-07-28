@@ -1,4 +1,4 @@
-* make pipes work
+* connection manager
 * expression language-type variable access
   * magic variables (readonly, maps, etc...)
 * options on command line (internal)
