@@ -17,4 +17,8 @@
 * tab-completion
 * command history
 * \e command to edit in editor
+* optional interpolation of variables in queries
+* optional bind parameters in queries
+* startup script
+
 
