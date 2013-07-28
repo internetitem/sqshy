@@ -17,8 +17,7 @@ public class EchoCommand extends CommandWithArguments {
 	}
 
 	@Override
-	protected void execute(Settings settings, List<String> parameters) throws CommandException {
-		Output output = settings.getOutput();
+	protected void execute(Output output, Settings settings, List<String> parameters) throws CommandException {
 		StringBuilder out = new StringBuilder();
 		for (String value : parameters) {
 			if (out.length() > 0) {

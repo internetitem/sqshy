@@ -8,12 +8,13 @@ import java.sql.Statement;
 import com.internetitem.sqshy.Output;
 import com.internetitem.sqshy.settings.Settings;
 import com.internetitem.sqshy.util.DatabaseUtil;
+import com.internetitem.sqshy.util.StringConsumer;
 
 public class SqlCommand implements Command {
 
 	private Settings settings;
 	private StringBuilder sql;
-	private boolean isReady;
+	private boolean isDone;
 
 	public SqlCommand(Settings settings) {
 		this.settings = settings;
@@ -21,44 +22,41 @@ public class SqlCommand implements Command {
 	}
 
 	@Override
-	public void addLine(String line) {
+	public void consume(boolean first, StringConsumer consumer) throws CommandException {
 		String delimiter = settings.getDelimiter();
 		String gocmd = settings.getGocmd();
-		if (line.trim().endsWith(delimiter)) {
-			isReady = true;
-			sql.append(line.substring(0, line.lastIndexOf(delimiter)));
-		} else if (line.trim().equals(gocmd)) {
-			isReady = true;
-		} else {
-			if (sql.length() > 0) {
-				sql.append("\n");
+
+		StringBuilder b = new StringBuilder();
+		while (consumer.hasMore()) {
+			b.append(consumer.consume());
+			String asString = b.toString();
+			if (asString.endsWith(delimiter)) {
+				sql.append(b.substring(0, b.length() - delimiter.length()));
+				isDone = true;
+				return;
+			} else if (asString.startsWith(gocmd) && (!consumer.hasMore() || consumer.consumeWhitespace())) {
+				isDone = true;
+				return;
 			}
-			sql.append(line);
 		}
+		sql.append(b);
 	}
 
 	@Override
-	public boolean isReady() {
-		return isReady;
+	public void newline() {
+		sql.append("\n");
 	}
 
 	@Override
-	public void execute() throws CommandException {
+	public void execute(Output output) throws CommandException {
 		try {
-			executeQuery(sql.toString());
+			executeQuery(output, settings.getConnection(), sql.toString());
 		} catch (SQLException e) {
 			throw new CommandException("Error executing SQL: " + e.getMessage());
 		}
 	}
 
-	@Override
-	public String getPrompt() {
-		return settings.getPrompt2();
-	}
-
-	private void executeQuery(String query) throws SQLException {
-		Connection conn = settings.getConnection();
-		Output out = settings.getOutput();
+	private void executeQuery(Output out, Connection conn, String query) throws SQLException {
 		if (conn == null) {
 			out.connectMessage("Not connected");
 			return;
@@ -82,6 +80,26 @@ public class SqlCommand implements Command {
 			DatabaseUtil.closeResultSet(rs);
 			DatabaseUtil.closeStatement(stmt);
 		}
+	}
+
+	@Override
+	public boolean couldBeDone() {
+		return isDone;
+	}
+
+	@Override
+	public boolean isDone() {
+		return isDone;
+	}
+
+	@Override
+	public boolean isMultiline() {
+		return true;
+	}
+
+	@Override
+	public String getPrompt() {
+		return settings.getPrompt2();
 	}
 
 }

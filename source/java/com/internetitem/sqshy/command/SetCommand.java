@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.internetitem.sqshy.Output;
 import com.internetitem.sqshy.settings.Settings;
-import com.internetitem.sqshy.util.StringUtil;
 
 public class SetCommand extends CommandWithArguments {
 
@@ -25,8 +24,7 @@ public class SetCommand extends CommandWithArguments {
 	}
 
 	@Override
-	protected void execute(Settings settings, List<String> parameters) throws CommandException {
-		Output output = settings.getOutput();
+	protected void execute(Output output, Settings settings, List<String> parameters) throws CommandException {
 		if (parameters.size() == 0) {
 			Map<String, String> variables = settings.getVariables();
 			List<String> keys = new ArrayList<>(variables.keySet());

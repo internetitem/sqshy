@@ -1,32 +1,26 @@
 package com.internetitem.sqshy.command;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.internetitem.sqshy.Output;
 import com.internetitem.sqshy.settings.Settings;
 
-public class ConnectCommand implements Command {
-
-	private Settings settings;
-	private String[] parts;
+public class ConnectCommand extends CommandWithArguments {
 
 	public ConnectCommand(Settings settings) {
-		this.settings = settings;
+		super(settings);
 	}
 
 	@Override
-	public void addLine(String line) {
-		this.parts = line.split("\\s+");
-	}
-
-	@Override
-	public boolean isReady() {
+	protected boolean interpolateNext(List<String> parameters) {
 		return true;
 	}
 
 	@Override
-	public void execute() throws CommandException {
-		if (parts.length == 0) {
+	protected void execute(Output output, Settings settings, List<String> parameters) throws CommandException {
+		if (parameters.isEmpty()) {
 			throw new CommandException("Nowhere to connect");
 		}
 		String alias = null;
@@ -34,32 +28,27 @@ public class ConnectCommand implements Command {
 		String username = null;
 		String password = null;
 		String driverClass = null;
-		if (parts.length == 1) {
-			String value = parts[0];
+		if (parameters.size() == 1) {
+			String value = parameters.get(0);
 			if (value.contains(":")) {
 				url = value;
 			} else {
 				alias = value;
 			}
-		} else if (parts.length == 3) {
-			url = parts[0];
-			username = parts[1];
-			password = parts[2];
-		} else if (parts.length == 4) {
-			url = parts[0];
-			username = parts[1];
-			password = parts[2];
-			driverClass = parts[3];
+		} else if (parameters.size() == 3) {
+			url = parameters.get(0);
+			username = parameters.get(1);
+			password = parameters.get(2);
+		} else if (parameters.size() == 4) {
+			url = parameters.get(0);
+			username = parameters.get(1);
+			password = parameters.get(2);
+			driverClass = parameters.get(3);
 		} else {
 			throw new CommandException("Invalid connect syntax");
 		}
 		Map<String, String> connectionProperties = new HashMap<>();
 		settings.connect(alias, driverClass, url, username, password, connectionProperties);
-	}
-
-	@Override
-	public String getPrompt() {
-		return null;
 	}
 
 }
