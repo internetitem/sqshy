@@ -1,5 +1,4 @@
 # sqshy #
----------
 
 SqSHy is a simple SQL Shell, inspired by [sqsh](http://www.sqsh.org/),
 [henplus](http://henplus.sourceforge.net/) and  `psql` (from Postgres).
@@ -11,7 +10,6 @@ unexpectedly as the functionality and implementation matures and
 stabilizes.
 
 ## Features ##
---------------
 
 *Current*
 
@@ -51,7 +49,6 @@ stabilizes.
  * In-app help
 
 ## Commands ##
---------------
 
 Note: These are the current commands, which may change at any moment.
 
@@ -93,7 +90,6 @@ by a semicolon ("`;`") (or the current value of the variable
 variable `gocmd`).
 
 ## Variables ##
----------------
 
 **delimiter**
 
