@@ -117,7 +117,7 @@ public class RunSqshy {
 		commands.addCommand("\\reconnect", ReconnectCommand.class);
 		commands.addCommand("\\set", SetCommand.class);
 		commands.addCommand("\\echo", EchoCommand.class);
-		if (url != null) {
+		if (url != null || alias != null) {
 			connectionManager.connect(alias, driverClass, url, username, password, connectionProperties);
 		}
 		SqshyRepl repl = new SqshyRepl(reader, settings, commands);
