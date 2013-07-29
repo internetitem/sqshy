@@ -34,7 +34,7 @@ stabilizes.
      * Set individual col width (by name)
      * Truncate/wrap long cols
    * Tab/CSV/BCP
-   * XML/JSON
+   * XML/JSON/HTML
    * Vertical
  * Schema inspection commands (list tables, views, other objects)
  * Save connection names (aliases) to user config
@@ -47,6 +47,7 @@ stabilizes.
  * Some method of allowing bind variables in queries
  * Load/run scripts at startup
  * In-app help
+ * Load JDBC drivers from outside Java's classpath
 
 ## Commands ##
 
