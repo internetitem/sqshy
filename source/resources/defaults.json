@@ -5,7 +5,8 @@
 		"quotechars": "['\"]",
 		"resultcount": "true",
 		"prompt": "sql> ",
-		"prompt2": "> "
+		"prompt2": "> ",
+		"history.file": "~/.sqshy-history"
 	},
 	"drivers": [
 		{"match": "mysql", "driver": "com.mysql.jdbc.Driver"}

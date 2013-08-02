@@ -66,7 +66,8 @@ public class HistoryFileVariable implements Variable {
 
 		if (filename != null && !filename.isEmpty()) {
 			try {
-				history = new FileHistory(new File(filename));
+				String tempFilename = filename.replaceFirst("^~/", System.getProperty("user.home") + "/");
+				history = new FileHistory(new File(tempFilename));
 			} catch (IOException e) {
 				// Ignore
 			}

@@ -125,7 +125,11 @@ Default is "`> `". Continuation prompt for multi-line SQL statements.
 
 **history.file**
 
-File to store command/SQL history.
+Default is "`~/.sqshy-history`".
+
+File to store command/SQL history. If the filename begins with "~/",
+that string is replaced with the value of the `user.home` system
+property.
 
 ### Builtin Variables ###
 
