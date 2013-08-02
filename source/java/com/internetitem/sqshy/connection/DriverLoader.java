@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import com.internetitem.sqshy.config.DriverMatch;
 import com.internetitem.sqshy.settings.Settings;
+import com.internetitem.sqshy.util.StringUtil;
 
 public class DriverLoader {
 
@@ -33,7 +34,7 @@ public class DriverLoader {
 		Set<URL> urls = new HashSet<>();
 
 		for (String dir : driverDirs) {
-			File file = new File(dir);
+			File file = new File(StringUtil.filename(dir));
 			if (!file.isDirectory()) {
 				continue;
 			}

@@ -38,4 +38,8 @@ public class StringUtil {
 
 		return builder.toString();
 	}
+
+	public static String filename(String filename) {
+		return filename.replaceFirst("^~/", System.getProperty("user.home") + "/");
+	}
 }

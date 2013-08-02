@@ -12,6 +12,7 @@ import jline.console.history.History;
 import jline.console.history.MemoryHistory;
 
 import com.internetitem.sqshy.command.CommandException;
+import com.internetitem.sqshy.util.StringUtil;
 
 public class HistoryFileVariable implements Variable {
 
@@ -66,8 +67,7 @@ public class HistoryFileVariable implements Variable {
 
 		if (filename != null && !filename.isEmpty()) {
 			try {
-				String tempFilename = filename.replaceFirst("^~/", System.getProperty("user.home") + "/");
-				history = new FileHistory(new File(tempFilename));
+				history = new FileHistory(new File(StringUtil.filename(filename)));
 			} catch (IOException e) {
 				// Ignore
 			}
