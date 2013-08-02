@@ -1,7 +1,7 @@
 package com.internetitem.sqshy.settings;
 
-import com.internetitem.sqshy.ConnectionManager;
 import com.internetitem.sqshy.command.CommandException;
+import com.internetitem.sqshy.connection.ConnectionManager;
 import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.variables.ConnectionManagerWrapper;
 import com.internetitem.sqshy.variables.EnvironmentVariable;

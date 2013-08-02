@@ -1,14 +1,12 @@
-package com.internetitem.sqshy;
+package com.internetitem.sqshy.connection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.config.DatabaseConnectionConfig;
@@ -25,17 +23,15 @@ public class ConnectionManager {
 	private String alias;
 	private Properties properties;
 
-	private List<DriverMatch> driverInfos;
-	private Set<String> loadedClasses;
+	private DriverLoader driverLoader;
 	private List<DatabaseConnectionConfig> savedConnections;
 	private Settings settings;
 	private Connection conn;
 
-	public ConnectionManager(Settings settings, List<DriverMatch> driverInfo, List<DatabaseConnectionConfig> savedConnections) {
+	public ConnectionManager(Settings settings, Set<DriverMatch> driverInfo, Set<String> driverDirs, List<DatabaseConnectionConfig> savedConnections) {
 		this.settings = settings;
-		this.driverInfos = driverInfo;
 		this.savedConnections = savedConnections;
-		this.loadedClasses = new HashSet<>();
+		this.driverLoader = new DriverLoader(settings, driverDirs, driverInfo);
 	}
 
 	public Connection getConnection() {
@@ -92,16 +88,9 @@ public class ConnectionManager {
 			throw new CommandException("connect specified but alias not found");
 		}
 
-		if (driverClass == null) {
-			findDriver(url);
-		}
-		if (driverClass != null) {
-			settings.getOutput().connectMessage("Connecting to URL " + url + " with driver " + driverClass);
-			loadDriver(driverClass, false);
-			this.driverClass = driverClass;
-		} else {
-			settings.getOutput().connectMessage("Connecting to URL " + url);
-		}
+		this.driverClass = driverClass;
+		driverLoader.loadDriver(driverClass, url);
+		settings.getOutput().connectMessage("Connecting to URL " + url);
 
 		Properties props = null;
 		if (connectionProperties != null && !connectionProperties.isEmpty()) {
@@ -137,30 +126,6 @@ public class ConnectionManager {
 			}
 		} catch (SQLException e) {
 			throw new CommandException("Unable to connect: " + e.getMessage());
-		}
-	}
-
-	private void loadDriver(String className, boolean log) {
-		if (loadedClasses.contains(className)) {
-			return;
-		}
-		loadedClasses.add(className);
-		try {
-			Class.forName(className);
-			if (log) {
-				settings.getOutput().connectMessage("Loaded driver " + className);
-			}
-		} catch (Exception e) {
-			settings.getOutput().connectMessage("Unable to load driver " + className + ": " + e.getMessage());
-		}
-	}
-
-	private void findDriver(String url) {
-		settings.getOutput().connectMessage("Scanning for JDBC Drivers");
-		for (DriverMatch match : driverInfos) {
-			if (Pattern.compile(match.getMatch()).matcher(url).find()) {
-				loadDriver(match.getDriver(), true);
-			}
 		}
 	}
 

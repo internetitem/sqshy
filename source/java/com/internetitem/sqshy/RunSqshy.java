@@ -3,8 +3,10 @@ package com.internetitem.sqshy;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import jline.Terminal;
 import jline.TerminalFactory;
@@ -23,6 +25,7 @@ import com.internetitem.sqshy.config.args.CommandLineArgument.ArgumentType;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
+import com.internetitem.sqshy.connection.ConnectionManager;
 import com.internetitem.sqshy.output.ConsoleLogger;
 import com.internetitem.sqshy.settings.Settings;
 
@@ -39,6 +42,7 @@ public class RunSqshy {
 		parser.addArg("property", "property", "p", ArgumentType.List, "JDBC Properties (key=value)");
 		parser.addArg("settings", "settings", null, ArgumentType.RequiredArg, "Load saved settings from file (defaults to ~/.sqshyrc)\nMissing files are ignored");
 		parser.addArg("set", "set", "s", ArgumentType.List, "Set variables");
+		parser.addArg("driver-dir", "driver-dir", null, ArgumentType.List, "Driver directories");
 		return parser;
 	}
 
@@ -62,6 +66,7 @@ public class RunSqshy {
 		}
 
 		Settings settings = new Settings();
+		Set<String> driverDirectories = new HashSet<>(cmdline.getListValues("driver-dir"));
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
 		settings.getVariableManager().addVariables(globalConfig.getVariables());
 
@@ -73,7 +78,7 @@ public class RunSqshy {
 			settingsFile = new File(System.getProperty("user.home"), ".sqshyrc");
 		}
 
-		List<DriverMatch> driverInfos = new ArrayList<>(globalConfig.getDrivers());
+		Set<DriverMatch> driverInfos = new HashSet<>(globalConfig.getDrivers());
 		List<DatabaseConnectionConfig> dcc = new ArrayList<>();
 
 		Configuration config = null;
@@ -88,6 +93,9 @@ public class RunSqshy {
 			List<DatabaseConnectionConfig> connections = config.getConnections();
 			if (connections != null) {
 				dcc.addAll(connections);
+			}
+			if (config.getDriverDirectories() != null) {
+				driverDirectories.addAll(config.getDriverDirectories());
 			}
 		} else {
 			System.err.println("Warning: No settings file found in " + settingsFile.getAbsolutePath());
@@ -110,7 +118,7 @@ public class RunSqshy {
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
 		ConsoleLogger logger = new ConsoleLogger(settings, reader);
-		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, dcc);
+		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, driverDirectories, dcc);
 		settings.init(logger, connectionManager);
 		Commands commands = new Commands(settings);
 		commands.addCommand("\\connect", ConnectCommand.class);

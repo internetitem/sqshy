@@ -13,12 +13,14 @@ public class Configuration {
 
 	private Map<String, String> variables;
 	private List<DatabaseConnectionConfig> connections;
+	private List<String> driverDirectories;
 	private List<DriverMatch> drivers;
 
 	public Configuration() {
 		this.variables = new HashMap<>();
 		this.connections = new ArrayList<>();
 		this.drivers = new ArrayList<>();
+		this.driverDirectories = new ArrayList<>();
 	}
 
 	public Map<String, String> getVariables() {
@@ -43,6 +45,14 @@ public class Configuration {
 
 	public void setDrivers(List<DriverMatch> drivers) {
 		this.drivers = drivers;
+	}
+
+	public List<String> getDriverDirectories() {
+		return driverDirectories;
+	}
+
+	public void setDriverDirectories(List<String> driverDirectories) {
+		this.driverDirectories = driverDirectories;
 	}
 
 	public static Configuration loadFromFile(File settingsFile) throws IOException {
