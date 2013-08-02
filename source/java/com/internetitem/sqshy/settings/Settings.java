@@ -1,10 +1,12 @@
 package com.internetitem.sqshy.settings;
 
 import com.internetitem.sqshy.ConnectionManager;
-import com.internetitem.sqshy.ConnectionManagerWrapper;
 import com.internetitem.sqshy.Output;
-import com.internetitem.sqshy.VariableManager;
 import com.internetitem.sqshy.command.CommandException;
+import com.internetitem.sqshy.variables.ConnectionManagerWrapper;
+import com.internetitem.sqshy.variables.EnvironmentVariable;
+import com.internetitem.sqshy.variables.SystemPropertyVariable;
+import com.internetitem.sqshy.variables.VariableManager;
 
 public class Settings {
 
@@ -29,7 +31,13 @@ public class Settings {
 		this.logger = logger;
 		this.originalLogger = logger;
 		this.connectionManager = connectionManager;
+		setupVariables();
+	}
+
+	private void setupVariables() {
 		variableManager.setVariable("connectionManager", new ConnectionManagerWrapper(connectionManager));
+		variableManager.setVariable("env", new EnvironmentVariable());
+		variableManager.setVariable("sys", new SystemPropertyVariable());
 	}
 
 	public VariableManager getVariableManager() {

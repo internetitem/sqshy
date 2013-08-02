@@ -1,4 +1,4 @@
-package com.internetitem.sqshy;
+package com.internetitem.sqshy.variables;
 
 import java.util.Set;
 

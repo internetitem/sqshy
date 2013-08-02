@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.internetitem.sqshy.Output;
-import com.internetitem.sqshy.VariableManager;
 import com.internetitem.sqshy.settings.Settings;
+import com.internetitem.sqshy.variables.VariableManager;
 
 public class SetCommand extends CommandWithArguments {
 

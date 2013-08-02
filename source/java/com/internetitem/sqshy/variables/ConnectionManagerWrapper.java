@@ -1,8 +1,9 @@
-package com.internetitem.sqshy;
+package com.internetitem.sqshy.variables;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import com.internetitem.sqshy.ConnectionManager;
 import com.internetitem.sqshy.command.CommandException;
 
 public class ConnectionManagerWrapper implements Variable {
