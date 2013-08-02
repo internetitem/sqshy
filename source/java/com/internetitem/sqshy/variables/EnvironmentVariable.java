@@ -25,10 +25,9 @@ public class EnvironmentVariable implements Variable {
 		throw new CommandException("environment variables are readonly");
 	}
 
-	// Too many to list
 	@Override
 	public Set<String> getNestedNames() {
-		return null;
+		return System.getenv().keySet();
 	}
 
 }

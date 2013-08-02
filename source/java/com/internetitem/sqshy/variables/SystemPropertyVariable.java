@@ -22,10 +22,9 @@ public class SystemPropertyVariable implements Variable {
 		System.setProperty(partName, newValue);
 	}
 
-	// Too many to list
 	@Override
 	public Set<String> getNestedNames() {
-		return null;
+		return System.getProperties().stringPropertyNames();
 	}
 
 }

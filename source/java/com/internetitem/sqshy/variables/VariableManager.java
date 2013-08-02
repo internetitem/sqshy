@@ -1,10 +1,10 @@
 package com.internetitem.sqshy.variables;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.util.StringUtil;
@@ -40,18 +40,8 @@ public class VariableManager {
 		variables.put(prefix, var);
 	}
 
-	public Set<String> getVariableNames() {
-		Set<String> names = new HashSet<>(variables.keySet());
-		for (Entry<String, Variable> e : variables.entrySet()) {
-			Variable var = e.getValue();
-			Set<String> nestedNames = var.getNestedNames();
-			if (nestedNames != null) {
-				for (String name : nestedNames) {
-					names.add(e.getKey() + "." + name);
-				}
-			}
-		}
-		return names;
+	public List<String> getVariableNames() {
+		return new ArrayList<>(variables.keySet());
 	}
 
 	public String getValue(String name, String defaultValue) throws CommandException {
@@ -106,6 +96,10 @@ public class VariableManager {
 		for (Entry<String, String> e : newValues.entrySet()) {
 			setValue(e.getKey(), e.getValue(), false);
 		}
+	}
+
+	public Variable getVariable(String name) {
+		return variables.get(name);
 	}
 
 }
