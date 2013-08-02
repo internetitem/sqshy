@@ -1,6 +1,6 @@
 package com.internetitem.sqshy.command;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.util.StringConsumer;
 
 public interface Command {

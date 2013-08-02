@@ -1,4 +1,4 @@
-package com.internetitem.sqshy;
+package com.internetitem.sqshy.output;
 
 import java.io.IOException;
 import java.io.OutputStream;

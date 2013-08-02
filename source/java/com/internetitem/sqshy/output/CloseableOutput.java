@@ -1,4 +1,4 @@
-package com.internetitem.sqshy;
+package com.internetitem.sqshy.output;
 
 import com.internetitem.sqshy.settings.Settings;
 

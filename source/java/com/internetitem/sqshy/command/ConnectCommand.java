@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.settings.Settings;
 
 public class ConnectCommand extends CommandWithArguments {

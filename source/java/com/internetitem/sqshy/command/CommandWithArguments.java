@@ -3,7 +3,7 @@ package com.internetitem.sqshy.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.settings.Settings;
 import com.internetitem.sqshy.util.StringConsumer;
 

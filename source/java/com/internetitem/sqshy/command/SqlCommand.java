@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.settings.Settings;
 import com.internetitem.sqshy.util.DatabaseUtil;
 import com.internetitem.sqshy.util.StringConsumer;

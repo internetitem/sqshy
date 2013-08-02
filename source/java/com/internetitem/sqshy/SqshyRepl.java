@@ -9,6 +9,9 @@ import jline.console.ConsoleReader;
 import com.internetitem.sqshy.command.Command;
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.command.Commands;
+import com.internetitem.sqshy.output.CloseableOutput;
+import com.internetitem.sqshy.output.FileOutput;
+import com.internetitem.sqshy.output.PipeOutput;
 import com.internetitem.sqshy.settings.Settings;
 import com.internetitem.sqshy.util.StringConsumer;
 

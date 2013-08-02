@@ -2,7 +2,7 @@ package com.internetitem.sqshy.command;
 
 import java.util.List;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.settings.Settings;
 
 public class ReconnectCommand extends CommandWithArguments {

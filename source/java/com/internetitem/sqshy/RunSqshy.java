@@ -23,6 +23,7 @@ import com.internetitem.sqshy.config.args.CommandLineArgument.ArgumentType;
 import com.internetitem.sqshy.config.args.CommandLineParseException;
 import com.internetitem.sqshy.config.args.CommandLineParser;
 import com.internetitem.sqshy.config.args.ParsedCommandLine;
+import com.internetitem.sqshy.output.ConsoleLogger;
 import com.internetitem.sqshy.settings.Settings;
 
 public class RunSqshy {

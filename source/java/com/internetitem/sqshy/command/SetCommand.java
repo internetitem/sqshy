@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.internetitem.sqshy.Output;
+import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.settings.Settings;
 import com.internetitem.sqshy.variables.Variable;
 import com.internetitem.sqshy.variables.VariableManager;
