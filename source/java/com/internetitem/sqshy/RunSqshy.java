@@ -11,6 +11,9 @@ import java.util.Set;
 import jline.Terminal;
 import jline.TerminalFactory;
 import jline.console.ConsoleReader;
+import jline.console.history.FileHistory;
+import jline.console.history.History;
+import jline.console.history.MemoryHistory;
 
 import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.command.ConnectCommand;
@@ -115,8 +118,18 @@ public class RunSqshy {
 
 		settings.getVariableManager().addVariables(listToMap(cmdline.getListValues("set")));
 
+		String historyFile = settings.getVariableManager().getValue("history-file", null);
+		History history;
+		if (historyFile != null) {
+			history = new FileHistory(new File(historyFile));
+		} else {
+			history = new MemoryHistory();
+		}
+
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
+		reader.setHistory(history);
+		reader.setHistoryEnabled(true);
 		ConsoleLogger logger = new ConsoleLogger(settings, reader);
 		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, driverDirectories, dcc);
 		settings.init(logger, connectionManager);

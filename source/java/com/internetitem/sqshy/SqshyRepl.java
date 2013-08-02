@@ -1,10 +1,12 @@
 package com.internetitem.sqshy;
 
+import java.io.Flushable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import jline.console.ConsoleReader;
+import jline.console.history.History;
 
 import com.internetitem.sqshy.command.Command;
 import com.internetitem.sqshy.command.CommandException;
@@ -129,6 +131,14 @@ public class SqshyRepl {
 			} catch (CommandException e) {
 				command = null;
 				settings.getOutput().error(e.getMessage());
+			}
+		}
+		History history = reader.getHistory();
+		if (history instanceof Flushable) {
+			try {
+				((Flushable) history).flush();
+			} catch (Exception e) {
+				// Ignore;
 			}
 		}
 		settings.getConnectionManager().closeConnection(true);
