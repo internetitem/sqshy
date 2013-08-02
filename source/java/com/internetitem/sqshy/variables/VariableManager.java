@@ -89,7 +89,7 @@ public class VariableManager {
 		}
 	}
 
-	public void addVariables(Map<String, String> newValues) throws CommandException {
+	public void addAll(Map<String, String> newValues) throws CommandException {
 		if (newValues == null) {
 			return;
 		}

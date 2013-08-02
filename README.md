@@ -26,6 +26,7 @@ stabilizes.
  * Pretty tabular output
  * Auto-detect JDBC driver based on JDBC URL
  * Load JDBC drivers from outside Java's classpath
+ * Command history
 
 *Future*
 
@@ -40,7 +41,6 @@ stabilizes.
  * Schema inspection commands (list tables, views, other objects)
  * Save connection names (aliases) to user config
  * Save variables to user config
- * Command history
  * Tab-completion (not sure if this will be metadata-based like henplus,
    or a static list like sqsh)
  * `\e` command to edit in editor
@@ -105,7 +105,7 @@ by a semicolon ("`;`") (or the current value of the variable
 `delimiter`) or "`\go`" at the beginning of a line (or the value of the
 variable `gocmd`).
 
-## Variables ##
+## Special Variables ##
 
 **delimiter**
 
@@ -122,6 +122,10 @@ Default is "`sql> `". The prompt.
 **prompt2**
 
 Default is "`> `". Continuation prompt for multi-line SQL statements.
+
+**history.file**
+
+File to store command/SQL history.
 
 ### Builtin Variables ###
 

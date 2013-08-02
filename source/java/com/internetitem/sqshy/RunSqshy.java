@@ -11,9 +11,6 @@ import java.util.Set;
 import jline.Terminal;
 import jline.TerminalFactory;
 import jline.console.ConsoleReader;
-import jline.console.history.FileHistory;
-import jline.console.history.History;
-import jline.console.history.MemoryHistory;
 
 import com.internetitem.sqshy.command.Commands;
 import com.internetitem.sqshy.command.ConnectCommand;
@@ -70,8 +67,9 @@ public class RunSqshy {
 
 		Settings settings = new Settings();
 		Set<String> driverDirectories = new HashSet<>(cmdline.getListValues("driver-dir"));
+		Map<String, String> allVars = new HashMap<>();
 		Configuration globalConfig = Configuration.loadFromResource("/defaults.json");
-		settings.getVariableManager().addVariables(globalConfig.getVariables());
+		allVars.putAll(globalConfig.getVariables());
 
 		String settingsFilename = cmdline.getStringValue("settings");
 		File settingsFile;
@@ -89,7 +87,10 @@ public class RunSqshy {
 			String filename = settingsFile.getAbsolutePath();
 			System.err.println("Loading settings file from " + filename);
 			config = Configuration.loadFromFile(settingsFile);
-			settings.getVariableManager().addVariables(config.getVariables());
+			Map<String, String> configVars = config.getVariables();
+			if (configVars != null) {
+				allVars.putAll(configVars);
+			}
 			if (config.getDrivers() != null) {
 				driverInfos.addAll(config.getDrivers());
 			}
@@ -116,23 +117,16 @@ public class RunSqshy {
 		Map<String, String> connectionProperties = listToMap(properties);
 		String alias = cmdline.getStringValue("connect");
 
-		settings.getVariableManager().addVariables(listToMap(cmdline.getListValues("set")));
-
-		String historyFile = settings.getVariableManager().getValue("history-file", null);
-		History history;
-		if (historyFile != null) {
-			history = new FileHistory(new File(historyFile));
-		} else {
-			history = new MemoryHistory();
+		Map<String, String> cmdVars = listToMap(cmdline.getListValues("set"));
+		if (cmdVars != null) {
+			allVars.putAll(cmdVars);
 		}
 
 		Terminal terminal = TerminalFactory.create();
 		ConsoleReader reader = new ConsoleReader("sqshy", System.in, System.out, terminal);
-		reader.setHistory(history);
-		reader.setHistoryEnabled(true);
 		ConsoleLogger logger = new ConsoleLogger(settings, reader);
 		ConnectionManager connectionManager = new ConnectionManager(settings, driverInfos, driverDirectories, dcc);
-		settings.init(logger, connectionManager);
+		settings.init(reader, logger, connectionManager, allVars);
 		Commands commands = new Commands(settings);
 		commands.addCommand("\\connect", ConnectCommand.class);
 		commands.addCommand("\\disconnect", DisconnectCommand.class);

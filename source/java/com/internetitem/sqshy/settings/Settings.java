@@ -1,10 +1,15 @@
 package com.internetitem.sqshy.settings;
 
+import java.util.Map;
+
+import jline.console.ConsoleReader;
+
 import com.internetitem.sqshy.command.CommandException;
 import com.internetitem.sqshy.connection.ConnectionManager;
 import com.internetitem.sqshy.output.Output;
 import com.internetitem.sqshy.variables.ConnectionManagerWrapper;
 import com.internetitem.sqshy.variables.EnvironmentVariable;
+import com.internetitem.sqshy.variables.HistoryFileVariable;
 import com.internetitem.sqshy.variables.SystemPropertyVariable;
 import com.internetitem.sqshy.variables.VariableManager;
 
@@ -14,6 +19,7 @@ public class Settings {
 	private Output logger;
 	private ConnectionManager connectionManager;
 	private VariableManager variableManager;
+	private ConsoleReader reader;
 
 	public Settings() {
 		this.variableManager = new VariableManager();
@@ -27,17 +33,20 @@ public class Settings {
 		return logger;
 	}
 
-	public void init(Output logger, ConnectionManager connectionManager) {
+	public void init(ConsoleReader reader, Output logger, ConnectionManager connectionManager, Map<String, String> initialVariables) throws CommandException {
+		this.reader = reader;
 		this.logger = logger;
 		this.originalLogger = logger;
 		this.connectionManager = connectionManager;
-		setupVariables();
+		setupVariables(initialVariables);
 	}
 
-	private void setupVariables() {
+	private void setupVariables(Map<String, String> vars) throws CommandException {
 		variableManager.setVariable("connectionManager", new ConnectionManagerWrapper(connectionManager));
 		variableManager.setVariable("env", new EnvironmentVariable());
 		variableManager.setVariable("sys", new SystemPropertyVariable());
+		variableManager.setVariable("history", new HistoryFileVariable(reader));
+		variableManager.addAll(vars);
 	}
 
 	public VariableManager getVariableManager() {

@@ -79,7 +79,7 @@ public class ConnectionManager {
 					}
 					Map<String, String> variables = dcc.getVariables();
 					if (variables != null) {
-						settings.getVariableManager().addVariables(variables);
+						settings.getVariableManager().addAll(variables);
 					}
 					this.alias = alias;
 					break OUTER;
