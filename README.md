@@ -25,6 +25,7 @@ stabilizes.
  * Redirect or pipe output of all commands (`|`, `>`, `>>`)
  * Pretty tabular output
  * Auto-detect JDBC driver based on JDBC URL
+ * Load JDBC drivers from outside Java's classpath
 
 *Future*
 
@@ -47,7 +48,21 @@ stabilizes.
  * Some method of allowing bind variables in queries
  * Load/run scripts at startup
  * In-app help
- * Load JDBC drivers from outside Java's classpath
+
+## Command Line Arguments ##
+
+Some command line arguments have short forms. If the argument does not
+allow an argument, it can be combined with other short-form arguments.
+
+Some arguments can be specified multiple times.
+
+In general, the format of an argument is one of:
+
+    -s            # short form
+    -s arg        # short form with argument
+    --long        # long form
+    --long=arg    # long form with argument
+    --long arg    # long form with argument
 
 ## Commands ##
 
@@ -107,4 +122,18 @@ Default is "`sql> `". The prompt.
 **prompt2**
 
 Default is "`> `". Continuation prompt for multi-line SQL statements.
+
+### Builtin Variables ###
+
+**env**
+
+Environment variables (can be accessed like `env.PATH`). Read-only.
+
+**sys**
+
+Java System Properties (can be accessed like `sys.user.home`).
+
+**connectionManager**
+
+Details about the current connection. Read-only.
 
